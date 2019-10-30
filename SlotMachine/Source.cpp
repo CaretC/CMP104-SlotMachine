@@ -26,8 +26,10 @@ using namespace std;
 
 void GraphicsSetup();
 void DrawSlotMachine();
-void toggleSlotMachineLights(bool&);
+void ToggleSlotMachineLights(bool&);
 void ToggleMachineName(bool&);
+void PrintReel(int, wstring);
+void TestPrintResults(int, int, int, int);
 
 
 // Globals
@@ -43,34 +45,127 @@ const int SIZE_X = 80; // Size of prinatble screen area X
 const int SIZE_Y = 25; // Size of prinatble screen area Y
 const int DEFAULT_TEXT_COLOR = 7;
 
-// Game State Globals
-int gameState = 0; // 0 = Idle, 1 = Play
+// Game Controls
+const char reel1Key = 'Z';
+const char reel2Key = 'X';
+const char reel3Key = 'C';
 
-// Main Game Loop
-// ==============
+// Reels
+const int REEL_LENGTH = 9;
+const wstring REEL_VALUES[REEL_LENGTH] = { L"cd  ", L"sudo", L"ls  ", L"bash", L"vim ", L"ping", L"grep", L"ssh ", L"echo"};
+
+
+// Main Game
+// =========
 
 int main()
 {
-	// Animation
+	// Animation Variables
 	bool lightStatus = false;
 	bool nameStatus = true;
 	int lightSpeed = 1000;
+	int spinSpeed = 400;
 
-	COORD slotMachineTopLeft = { 1,1 };
+	// Game Variables
+	int gameActive = true;
+	int gameState = 0; // 0 = Idle, 1 = Spin Reels 1+2+3, 2 = Spin Reels 2+3, 3 = Spin Reel 3, 4 = All Reels Stopped
+	int reel1StopPos = 0;
+	int reel2StopPos = 0;
+	int reel3StopPos = 0;
 
+	// Game Setup
 	GraphicsSetup();
 
 	DrawSlotMachine();
 
-
-
-	while (gameState == 0)
+	while (gameActive)
 	{
-		ToggleMachineName(nameStatus);
+		// Idle State Loop
+		while (gameState == 0)
+		{
+			ToggleMachineName(nameStatus);
 
-		toggleSlotMachineLights(lightStatus);
+			ToggleSlotMachineLights(lightStatus);
 
-		Sleep(lightSpeed);
+			if (_kbhit())
+			{
+				int key = _getch();
+
+				if (key == ' ') 
+				{
+					gameState = 1;
+				}
+
+				if (key == 27)
+				{
+					gameActive = false;
+					gameState = 6;
+				}
+
+			}
+
+			Sleep(lightSpeed);
+		}
+
+		// Spin State Loop
+		while (gameState > 0 && gameState <=3)
+		{
+			bool keepSpinning = true;
+
+			while (keepSpinning)
+			{
+				for (int i = 0; i < REEL_LENGTH; i++)
+				{
+					if (gameState == 1)
+					{
+						PrintReel(1, REEL_VALUES[i]);
+					}
+
+					if (gameState == 1 || gameState == 2)
+					{
+						PrintReel(2, REEL_VALUES[i]);
+					}
+
+					if (gameState > 0 && gameState <= 3)
+					{
+						PrintReel(3, REEL_VALUES[i]);
+					}
+
+					if (_kbhit())
+					{
+						int key = towupper(_getch());
+
+						if (key == 'Z' && gameState == 1)
+						{
+							reel1StopPos = i;
+							gameState = 2;
+							break;
+						}
+
+						if (key == 'X' && gameState == 2)
+						{
+							reel2StopPos = i;
+							gameState = 3;
+							break;
+						}
+
+						if (key == 'C' && gameState == 3)
+						{
+							keepSpinning = false;
+							reel3StopPos = i;
+							gameState = 4;
+							break;
+						}
+					}
+
+					Sleep(spinSpeed);
+				}
+			}
+
+			spinSpeed -= 50;
+			TestPrintResults(reel1StopPos, reel2StopPos, reel3StopPos, spinSpeed);
+			gameState = 0;
+		}
 	}
 
 	return 0;
@@ -79,7 +174,7 @@ int main()
 // Functions
 // =========
 
-// Runs to set up console graphics engine for the game
+// Set up console graphics engine for the game
 void GraphicsSetup()
 {
 	bool result = _setmode(_fileno(stdout), _O_U16TEXT); // Set UniCode Chars
@@ -122,7 +217,7 @@ void DrawSlotMachine()
 	wcout << L" ║ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ║ " << endl;
 	wcout << L" ║  ╔════════╤════════╤════════╗  ║" << endl;
 	wcout << L" ║  ║        │        │        ║  ║" << endl;
-	wcout << L" ║  ║        │        │        ║  ║" << endl;
+	wcout << L" ║  ╟        ┼        ┼        ╢  ║" << endl;
 	wcout << L" ║  ║        │        │        ║  ║" << endl;
 	wcout << L" ║  ╚════════╧════════╧════════╝  ║" << endl;
 	wcout << L" ║ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ║" << endl;
@@ -130,15 +225,15 @@ void DrawSlotMachine()
 	wcout << L" ╔═╧═╧═╧════════════════════╧═╧═╧═╗" << endl;
 	wcout << L" ║┌──────────────────────────────┐║" << endl;
 	wcout << L" ║│   ┌───┐    ┌───┐    ┌───┐    │║" << endl;
-	wcout << L" ║│   │ A │    │ S │    │ D │    │║" << endl;
+	wcout << L" ║│   │ Z │    │ X │    │ C │    │║" << endl;
 	wcout << L" ║│   └───┘    └───┘    └───┘    │║" << endl;
 	wcout << L" ║└──────────────────────────────┘║" << endl;
 	wcout << L" ╚═╤═╤═╤════════════════════╤═╤═╤═╝" << endl;
-	wcout << L"   └─┴─┘                    └─┴─┘" << endl;
+	wcout << L"   └─┴─┘                    └─┴─┘  " << endl;
 }
 
 // Toggle Slot Machine Lights
-void toggleSlotMachineLights(bool &status)
+void ToggleSlotMachineLights(bool &status)
 {
 
 	if (status)
@@ -252,5 +347,48 @@ void ToggleMachineName(bool& status)
 	}
 
 	
+}
+
+void PrintReel(int reelNumber, wstring reelValue)
+{
+	if (reelNumber > 0 && reelNumber <= 3)
+	{
+		if (reelNumber == 1)
+		{
+			SetConsoleCursorPosition(hconsole, { 7,7 });
+
+			wcout << reelValue;
+		}
+		else if (reelNumber == 2)
+		{
+			SetConsoleCursorPosition(hconsole, { 16,7 });
+
+			wcout << reelValue;
+		}
+		else if (reelNumber == 3)
+		{
+			SetConsoleCursorPosition(hconsole, { 25,7 });
+
+			wcout << reelValue;
+		}
+	}
+	else 
+	{
+		OutputDebugString("DEBUG: reelNumberValue out of range. It must be between 1-3.");
+	}
+}
+
+// TODO: This is a test function remove when done
+void TestPrintResults(int reel1, int reel2, int reel3, int speed) 
+{
+	SetConsoleCursorPosition(hconsole, { 0,22 });
+
+	wcout << L"DEBUG: FUNCTION" << endl;
+	wcout << L"The reel results were:" << endl;
+	wcout << L"Reel 1: " << REEL_VALUES[reel1] << endl;
+	wcout << L"Reel 2: " << REEL_VALUES[reel2] << endl;
+	wcout << L"Reel 3: " << REEL_VALUES[reel3] << endl;
+	wcout << endl;
+	wcout << "The new spin speed is: " << speed << endl;
 }
 
