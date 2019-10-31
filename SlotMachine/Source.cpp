@@ -33,6 +33,10 @@ void DrawNetworkBox();
 void ToggleSlotMachineLights(bool&);
 void ToggleMachineName(bool&);
 void PrintReel(int, wstring);
+void PrintDebugInfoMessage(wstring);
+void PrintDebugInfoMessage(wstring, wstring);
+void ClearDebugInfoMessage();
+int VictoryState(int, int, int);
 
 
 void TestPrintResults(int, int, int, int);
@@ -86,6 +90,7 @@ int main()
 	DrawTargetBox();
 	DrawVunBox();
 	DrawNetworkBox();
+	
 
 	while (gameActive)
 	{
@@ -120,6 +125,9 @@ int main()
 		while (gameState > 0 && gameState <=3)
 		{
 			bool keepSpinning = true;
+
+			ClearDebugInfoMessage();
+			PrintDebugInfoMessage(L"Spinning ...");
 
 			while (keepSpinning)
 			{
@@ -171,7 +179,35 @@ int main()
 				}
 			}
 
-			spinSpeed -= 50;
+			if (spinSpeed >= 50)
+			{
+				spinSpeed -= 50;
+			}
+
+			switch (VictoryState(reel1StopPos, reel2StopPos, reel3StopPos))
+			{
+				case 1:
+					ClearDebugInfoMessage();
+					PrintDebugInfoMessage(L"You win!", L"Vun Exploited");
+					break;
+
+				case 2:
+					ClearDebugInfoMessage();
+					PrintDebugInfoMessage(L"You win!", L"2 Commands");
+					break;
+
+				case 3:
+					ClearDebugInfoMessage();
+					PrintDebugInfoMessage(L"You win!", L"3 Commands");
+					break;
+
+				default:
+					ClearDebugInfoMessage();
+					PrintDebugInfoMessage(L"Failed!", L"Invalid Cmd");
+					break;
+			}
+
+
 			TestPrintResults(reel1StopPos, reel2StopPos, reel3StopPos, spinSpeed);
 			gameState = 0;
 		}
@@ -305,9 +341,9 @@ void DrawVunBox()
 void DrawNetworkBox()
 {
 	wstring networkBox[10] = {
-	L"╔═════════╤═════╦═════╤════════════╗",
-	L"║ NETWORK │     ║ CLI │            ║",
-	L"╟─────────┘     ╟─────┘            ║",
+	L"╔═════════╤═════╦════════════╤═════╗",
+	L"║ NETWORK │     ║ DEBUG INFO │     ║",
+	L"╟─────────┘     ╟────────────┘     ║",
 	L"║  . . . . . .  ║                  ║",
 	L"║  . . . . . .  ║                  ║",
 	L"║  . . . . . .  ║                  ║",
@@ -326,7 +362,6 @@ void DrawNetworkBox()
 		wcout << networkBox[i];
 	}
 }
-
 
 // Toggle Slot Machine Lights
 void ToggleSlotMachineLights(bool &status)
@@ -445,6 +480,7 @@ void ToggleMachineName(bool& status)
 	
 }
 
+// Print a reel
 void PrintReel(int reelNumber, wstring reelValue)
 {
 	if (reelNumber > 0 && reelNumber <= 3)
@@ -474,17 +510,62 @@ void PrintReel(int reelNumber, wstring reelValue)
 	}
 }
 
+// Print Debug Info Message
+void PrintDebugInfoMessage(wstring message) 
+{
+	SetConsoleCursorPosition(hconsole, { 58, 17 });
+	wcout << "~$ " << message;
+}
+
+void PrintDebugInfoMessage(wstring messageLine1, wstring messageLine2)
+{
+	SetConsoleCursorPosition(hconsole, { 58, 17 });
+	wcout << "~$ " << messageLine1;
+
+	SetConsoleCursorPosition(hconsole, { 58, 18 });
+	wcout << "~$ " << messageLine2;
+}
+
+// Clear Debug Info Message
+void ClearDebugInfoMessage()
+{
+	PrintDebugInfoMessage(L"              ", L"              ");
+}
+
+// Vicory State
+int VictoryState(int reel1, int reel2, int reel3)
+{
+	int victoryState = 0; // 0 = no win, 1 = vulnarability, 2 = 2 reels, 3 = 3 reels
+
+	if (reel1 == 19)
+	{
+		victoryState = 1;
+	}
+
+	// 2 Reel Victory
+	else if (reel1 == reel2 || reel2 == reel3 || reel1 == reel3)
+	{
+		victoryState = 2;
+	}
+
+	// 3 Reel Victory
+	else if (reel1 == reel2 && reel2 == reel3)
+	{
+		victoryState = 3;
+	}
+
+	return victoryState;
+}
+
 // TODO: This is a test function remove when done
 void TestPrintResults(int reel1, int reel2, int reel3, int speed) 
 {
-	SetConsoleCursorPosition(hconsole, { 0,22 });
+	SetConsoleCursorPosition(hconsole, { 0,24 });
 
-	wcout << L"DEBUG: FUNCTION" << endl;
-	wcout << L"The reel results were:" << endl;
+	wcout << L"DEBUG: INFO" << endl;
 	wcout << L"Reel 1: " << REEL_VALUES[reel1] << endl;
 	wcout << L"Reel 2: " << REEL_VALUES[reel2] << endl;
 	wcout << L"Reel 3: " << REEL_VALUES[reel3] << endl;
-	wcout << endl;
-	wcout << "The new spin speed is: " << speed << endl;
+	wcout << "The new spin speed is: " << speed ;
 }
 
