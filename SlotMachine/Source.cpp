@@ -37,6 +37,8 @@ void PrintDebugInfoMessage(wstring);
 void PrintDebugInfoMessage(wstring, wstring);
 void ClearDebugInfoMessage();
 int VictoryState(int, int, int);
+void PrintData(int);
+void PrintVisibility(int);
 
 
 void TestPrintResults(int, int, int, int);
@@ -78,10 +80,12 @@ int main()
 
 	// Game Variables
 	int gameActive = true;
-	int gameState = 0; // 0 = Idle, 1 = Spin Reels 1+2+3, 2 = Spin Reels 2+3, 3 = Spin Reel 3, 4 = All Reels Stopped
+	int gameState = 0; // 0 = Idle, 1 = Spin Reels 1+2+3, 2 = Spin Reels 2+3, 3 = Spin Reel 3, 4 = All Reels Stopped, 5 = Game Over
 	int reel1StopPos = 0;
 	int reel2StopPos = 0;
 	int reel3StopPos = 0;
+	int data = 0;
+	int visibility = 0;
 
 	// Game Setup
 	GraphicsSetup();
@@ -90,6 +94,8 @@ int main()
 	DrawTargetBox();
 	DrawVunBox();
 	DrawNetworkBox();
+	PrintData(data);
+	PrintVisibility(visibility);
 	
 
 	while (gameActive)
@@ -133,6 +139,7 @@ int main()
 			{
 				for (int i = 0; i < REEL_LENGTH; i++)
 				{
+					// TODO: Make Buttons red when they are not in use and Green when they can be pressed that would be cool
 					if (gameState == 1)
 					{
 						PrintReel(1, REEL_VALUES[i]);
@@ -194,22 +201,69 @@ int main()
 				case 2:
 					ClearDebugInfoMessage();
 					PrintDebugInfoMessage(L"You win!", L"2 Commands");
+					data += 3;
+					visibility -= 1; // TODO: Make Decrement Function
 					break;
 
 				case 3:
 					ClearDebugInfoMessage();
 					PrintDebugInfoMessage(L"You win!", L"3 Commands");
+					data += 9;
+					visibility = 0;
 					break;
 
 				default:
 					ClearDebugInfoMessage();
 					PrintDebugInfoMessage(L"Failed!", L"Invalid Cmd");
+					visibility += 1;
 					break;
 			}
 
+			// Update Scores
+			if (gameState != 0 && gameState != 5)
+			{
+				PrintData(data);
 
-			TestPrintResults(reel1StopPos, reel2StopPos, reel3StopPos, spinSpeed);
-			gameState = 0;
+				if (visibility <= 10)
+				{
+					PrintVisibility(visibility);
+					gameState = 0;
+				}
+				else
+				{
+					gameState = 5;
+				}
+
+				TestPrintResults(reel1StopPos, reel2StopPos, reel3StopPos, spinSpeed);
+			}
+
+			// Game Over State
+			while (gameState == 5)
+			{
+				ClearDebugInfoMessage();
+				PrintDebugInfoMessage(L"BUSTED!", L"Run Fast!");
+
+				ToggleSlotMachineLights(lightStatus);
+
+				if (_kbhit())
+				{
+					int key = towupper(_getch());
+
+					// Reset Game
+					if (key == 'R')
+					{
+						gameState = 0;
+						visibility = 0;
+						data = 0;
+						PrintData(data);
+						PrintVisibility(visibility);
+						break;
+					}
+				}
+
+				Sleep(lightSpeed);
+			}
+
 		}
 	}
 
@@ -283,8 +337,8 @@ void DrawStatusBox()
 	SetConsoleCursorPosition(hconsole, { 0,20 });
 
 	wcout << L" ╔════════╤═════════════════════════╗" << endl;
-	wcout << L" ║ STATUS │ Visibility [■■■■■     ] ║" << endl;
-	wcout << L" ╟────────┘ Data: 256 GB            ║" << endl;
+	wcout << L" ║ STATUS │ Visibility [          ] ║" << endl;
+	wcout << L" ╟────────┘ Data: 0 GB              ║" << endl;
 	wcout << L" ╚══════════════════════════════════╝" << endl;
 }
 
@@ -532,7 +586,7 @@ void ClearDebugInfoMessage()
 	PrintDebugInfoMessage(L"              ", L"              ");
 }
 
-// Vicory State
+// Victory State
 int VictoryState(int reel1, int reel2, int reel3)
 {
 	int victoryState = 0; // 0 = no win, 1 = vulnarability, 2 = 2 reels, 3 = 3 reels
@@ -541,6 +595,11 @@ int VictoryState(int reel1, int reel2, int reel3)
 	{
 		victoryState = 1;
 	}
+	// 3 Reel Victory
+	else if (reel1 == reel2 && reel1 == reel3)
+	{
+		victoryState = 3;
+	}
 
 	// 2 Reel Victory
 	else if (reel1 == reel2 || reel2 == reel3 || reel1 == reel3)
@@ -548,13 +607,34 @@ int VictoryState(int reel1, int reel2, int reel3)
 		victoryState = 2;
 	}
 
-	// 3 Reel Victory
-	else if (reel1 == reel2 && reel2 == reel3)
+	return victoryState;
+}
+
+// Print Data
+void PrintData(int dataScore) 
+{
+	SetConsoleCursorPosition(hconsole, { 18,22 });
+	wcout << dataScore << "         ";
+
+	SetConsoleCursorPosition(hconsole, { 18,22 });
+	wcout << dataScore << " GB";
+}
+
+// Print Visibility
+void PrintVisibility(int visibilityScore)
+{
+	SetConsoleCursorPosition(hconsole, { 24,21 });
+	wcout << L"          ";
+
+	SetConsoleCursorPosition(hconsole, { 24,21 });
+	SetConsoleTextAttribute(hconsole, 12); // Set bar Red
+
+	for (int i = 0; i < visibilityScore; i++)
 	{
-		victoryState = 3;
+		wcout << L"■";
 	}
 
-	return victoryState;
+	SetConsoleTextAttribute(hconsole, DEFAULT_TEXT_COLOR); // Set Console Text Color to Default
 }
 
 // TODO: This is a test function remove when done
