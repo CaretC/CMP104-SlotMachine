@@ -26,9 +26,15 @@ using namespace std;
 
 void GraphicsSetup();
 void DrawSlotMachine();
+void DrawStatusBox();
+void DrawTargetBox();
+void DrawVunBox();
+void DrawNetworkBox();
 void ToggleSlotMachineLights(bool&);
 void ToggleMachineName(bool&);
 void PrintReel(int, wstring);
+
+
 void TestPrintResults(int, int, int, int);
 
 
@@ -75,8 +81,11 @@ int main()
 
 	// Game Setup
 	GraphicsSetup();
-
 	DrawSlotMachine();
+	DrawStatusBox();
+	DrawTargetBox();
+	DrawVunBox();
+	DrawNetworkBox();
 
 	while (gameActive)
 	{
@@ -211,26 +220,113 @@ void DrawSlotMachine()
 {
 	SetConsoleCursorPosition(hconsole, {1,1});
 
-	wcout << L"  \\|/ ┌────────────────────┐ \\|/  " << endl;
-	wcout << L"  (┌─┐)│                    │(┌─┐)" << endl;
-	wcout << L" ╔═╧═╧═╧════════════════════╧═╧═╧═╗" << endl;
-	wcout << L" ║ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ║ " << endl;
-	wcout << L" ║  ╔════════╤════════╤════════╗  ║" << endl;
-	wcout << L" ║  ║        │        │        ║  ║" << endl;
-	wcout << L" ║  ╟        ┼        ┼        ╢  ║" << endl;
-	wcout << L" ║  ║        │        │        ║  ║" << endl;
-	wcout << L" ║  ╚════════╧════════╧════════╝  ║" << endl;
-	wcout << L" ║ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ║" << endl;
-	wcout << L" ╚═╤═╤═╤════════════════════╤═╤═╤═╝" << endl;
-	wcout << L" ╔═╧═╧═╧════════════════════╧═╧═╧═╗" << endl;
-	wcout << L" ║┌──────────────────────────────┐║" << endl;
-	wcout << L" ║│   ┌───┐    ┌───┐    ┌───┐    │║" << endl;
-	wcout << L" ║│   │ Z │    │ X │    │ C │    │║" << endl;
-	wcout << L" ║│   └───┘    └───┘    └───┘    │║" << endl;
-	wcout << L" ║└──────────────────────────────┘║" << endl;
-	wcout << L" ╚═╤═╤═╤════════════════════╤═╤═╤═╝" << endl;
-	wcout << L"   └─┴─┘                    └─┴─┘  " << endl;
+	wcout << L"   \\|/ ┌────────────────────┐ \\|/  " << endl;
+	wcout << L"   (┌─┐)│                    │(┌─┐)" << endl;
+	wcout << L"  ╔═╧═╧═╧════════════════════╧═╧═╧═╗" << endl;
+	wcout << L"  ║ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ║ " << endl;
+	wcout << L"  ║  ╔════════╤════════╤════════╗  ║" << endl;
+	wcout << L"  ║  ║        │        │        ║  ║" << endl;
+	wcout << L"  ║  ╟        ┼        ┼        ╢  ║" << endl;
+	wcout << L"  ║  ║        │        │        ║  ║" << endl;
+	wcout << L"  ║  ╚════════╧════════╧════════╝  ║" << endl;
+	wcout << L"  ║ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ║" << endl;
+	wcout << L"  ╚═╤═╤═╤════════════════════╤═╤═╤═╝" << endl;
+	wcout << L"  ╔═╧═╧═╧════════════════════╧═╧═╧═╗" << endl;
+	wcout << L"  ║┌──────────────────────────────┐║" << endl;
+	wcout << L"  ║│   ┌───┐    ┌───┐    ┌───┐    │║" << endl;
+	wcout << L"  ║│   │ Z │    │ X │    │ C │    │║" << endl;
+	wcout << L"  ║│   └───┘    └───┘    └───┘    │║" << endl;
+	wcout << L"  ║└──────────────────────────────┘║" << endl;
+	wcout << L"  ╚═╤═╤═╤════════════════════╤═╤═╤═╝" << endl;
+	wcout << L"    └─┴─┘                    └─┴─┘  " << endl;
 }
+
+// Draws Status Box
+void DrawStatusBox()
+{
+	SetConsoleCursorPosition(hconsole, { 0,20 });
+
+	wcout << L" ╔════════╤═════════════════════════╗" << endl;
+	wcout << L" ║ STATUS │ Visibility [■■■■■     ] ║" << endl;
+	wcout << L" ╟────────┘ Data: 256 GB            ║" << endl;
+	wcout << L" ╚══════════════════════════════════╝" << endl;
+}
+
+// Draw Target Box
+void DrawTargetBox()
+{
+	wstring targetBox[7] = {
+		L"╔════════╤═════════════════════════╗",
+		L"║ TARGET │ LEVEL 1: Neighbour's    ║",
+		L"╟────────┴─────────────────────────╢",
+		L"║ In the post Brexit era any data  ║",
+		L"║ can be worth something to the    ║",
+		L"║ government.                      ║",
+		L"╚══════════════════════════════════╝"
+	};
+
+	for (int i = 0; i < 7; i++)
+	{
+		short pos = 0 + i;
+
+		SetConsoleCursorPosition(hconsole, { 40, pos});
+
+		wcout << targetBox[i];
+	}
+
+
+
+}
+
+// Draw Vun Box
+void DrawVunBox()
+{
+	wstring vunBox[7] = {
+	L"╔═══════════════╤══════════════════╗",
+	L"║ VULNERABILITY │                  ║",
+	L"╟───────────────┘                  ║",
+	L"║  ┌──────┐   ┌──────┐   ┌──────┐  ║",
+	L"║  │ sudo │   │ ping │   │ bash │  ║",
+	L"║  └──────┘   └──────┘   └──────┘  ║",
+	L"╚══════════════════════════════════╝"
+	};
+
+	for (int i = 0; i < 7; i++)
+	{
+		short pos = 7 + i;
+
+		SetConsoleCursorPosition(hconsole, { 40, pos });
+
+		wcout << vunBox[i];
+	}
+}
+
+// Draw NetworkBox
+void DrawNetworkBox()
+{
+	wstring networkBox[10] = {
+	L"╔═════════╤═════╦═════╤════════════╗",
+	L"║ NETWORK │     ║ CLI │            ║",
+	L"╟─────────┘     ╟─────┘            ║",
+	L"║  . . . . . .  ║                  ║",
+	L"║  . . . . . .  ║                  ║",
+	L"║  . . . . . .  ║                  ║",
+	L"║  . . . . . .  ║                  ║",
+	L"║  . . . . . .  ║                  ║",
+	L"║  . . . . . .  ║                  ║",
+	L"╚═══════════════╩══════════════════╝"
+	};
+
+	for (int i = 0; i < 10; i++)
+	{
+		short pos = 14 + i;
+
+		SetConsoleCursorPosition(hconsole, { 40, pos });
+
+		wcout << networkBox[i];
+	}
+}
+
 
 // Toggle Slot Machine Lights
 void ToggleSlotMachineLights(bool &status)
@@ -241,27 +337,27 @@ void ToggleSlotMachineLights(bool &status)
 		SetConsoleTextAttribute(hconsole, 12); // Set Lights Red
 
 		// Light 1 top
-		SetConsoleCursorPosition(hconsole, { 3, 1 });
+		SetConsoleCursorPosition(hconsole, { 4, 1 });
 		wcout << "\\|/";
 
 		// Light 1 Left
-		SetConsoleCursorPosition(hconsole, { 2,2 });
+		SetConsoleCursorPosition(hconsole, { 3,2 });
 		wcout << "(";
 
 		// Light 1 Right
-		SetConsoleCursorPosition(hconsole, { 6,2 });
+		SetConsoleCursorPosition(hconsole, { 7,2 });
 		wcout << ")";
 
 		// Light 2 top
-		SetConsoleCursorPosition(hconsole, { 30, 1 });
+		SetConsoleCursorPosition(hconsole, { 31, 1 });
 		wcout << "\\|/";
 
 		// Light 2 Left
-		SetConsoleCursorPosition(hconsole, { 29,2 });
+		SetConsoleCursorPosition(hconsole, { 30,2 });
 		wcout << "(";
 
 		// Light 2 Right
-		SetConsoleCursorPosition(hconsole, { 33,2 });
+		SetConsoleCursorPosition(hconsole, { 34,2 });
 		wcout << ")";
 
 		SetConsoleTextAttribute(hconsole, DEFAULT_TEXT_COLOR); // Set Console Text Color to Default
@@ -271,27 +367,27 @@ void ToggleSlotMachineLights(bool &status)
 	else
 	{
 		// Light 1 top
-		SetConsoleCursorPosition(hconsole, { 3, 1 });
+		SetConsoleCursorPosition(hconsole, { 4, 1 });
 		wcout << "   ";
 
 		// Light 1 Left
-		SetConsoleCursorPosition(hconsole, { 2,2 });
+		SetConsoleCursorPosition(hconsole, { 3,2 });
 		wcout << " ";
 
 		// Light 1 Right
-		SetConsoleCursorPosition(hconsole, { 6,2 });
+		SetConsoleCursorPosition(hconsole, { 7,2 });
 		wcout << " ";
 
 		// Light 2 top
-		SetConsoleCursorPosition(hconsole, { 30, 1 });
+		SetConsoleCursorPosition(hconsole, { 31, 1 });
 		wcout << "   ";
 
 		// Light 2 Left
-		SetConsoleCursorPosition(hconsole, { 29,2 });
+		SetConsoleCursorPosition(hconsole, { 30,2 });
 		wcout << " ";
 
 		// Light 2 Right
-		SetConsoleCursorPosition(hconsole, { 33,2 });
+		SetConsoleCursorPosition(hconsole, { 34,2 });
 		wcout << " ";
 
 		status = true;
@@ -303,7 +399,7 @@ void ToggleMachineName(bool& status)
 {
 	if (status)
 	{	
-		SetConsoleCursorPosition(hconsole, { 12,2 });
+		SetConsoleCursorPosition(hconsole, { 13,2 });
 
 		SetConsoleTextAttribute(hconsole, 11); // Set Name Light Cyan
 
@@ -311,11 +407,11 @@ void ToggleMachineName(bool& status)
 
 		SetConsoleTextAttribute(hconsole, 10); // Set Name Light Green
 
-		SetConsoleCursorPosition(hconsole, { 9,2 });
+		SetConsoleCursorPosition(hconsole, { 10,2 });
 
 		wcout << "**";
 
-		SetConsoleCursorPosition(hconsole, { 25,2 });
+		SetConsoleCursorPosition(hconsole, { 26,2 });
 
 		wcout << "**";
 
@@ -325,7 +421,7 @@ void ToggleMachineName(bool& status)
 	}
 	else
 	{
-		SetConsoleCursorPosition(hconsole, { 12,2 });
+		SetConsoleCursorPosition(hconsole, { 13,2 });
 
 		SetConsoleTextAttribute(hconsole, 10); // Set Name Light Green
 
@@ -333,11 +429,11 @@ void ToggleMachineName(bool& status)
 
 		SetConsoleTextAttribute(hconsole, 11); // Set Name Light Cyan
 
-		SetConsoleCursorPosition(hconsole, { 9,2 });
+		SetConsoleCursorPosition(hconsole, { 10,2 });
 
 		wcout << "**";
 
-		SetConsoleCursorPosition(hconsole, { 25,2 });
+		SetConsoleCursorPosition(hconsole, { 26,2 });
 
 		wcout << "**";
 
@@ -355,19 +451,19 @@ void PrintReel(int reelNumber, wstring reelValue)
 	{
 		if (reelNumber == 1)
 		{
-			SetConsoleCursorPosition(hconsole, { 7,7 });
+			SetConsoleCursorPosition(hconsole, { 8,7 });
 
 			wcout << reelValue;
 		}
 		else if (reelNumber == 2)
 		{
-			SetConsoleCursorPosition(hconsole, { 16,7 });
+			SetConsoleCursorPosition(hconsole, { 17,7 });
 
 			wcout << reelValue;
 		}
 		else if (reelNumber == 3)
 		{
-			SetConsoleCursorPosition(hconsole, { 25,7 });
+			SetConsoleCursorPosition(hconsole, { 26,7 });
 
 			wcout << reelValue;
 		}
