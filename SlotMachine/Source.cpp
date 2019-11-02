@@ -45,6 +45,9 @@ void ResetData(int&);
 void IncreaseSpinSpeed(int&, int);
 void DecreaseSpinSpeed(int&, int);
 void ResetSpinSpeed(int&);
+void DrawReel1Key(bool);
+void DrawReel2Key(bool);
+void DrawReel3Key(bool);
 
 
 void TestPrintResults(int, int, int, int, int);
@@ -121,6 +124,9 @@ int main()
 	DrawNetworkBox();
 	PrintData(data);
 	PrintVisibility(visibility);
+	DrawReel1Key(false);
+	DrawReel2Key(false);
+	DrawReel3Key(false);
 	
 
 	while (gameActive)
@@ -163,20 +169,34 @@ int main()
 			{
 				for (int i = 0; i < REEL_LENGTH; i++)
 				{
-					// TODO: Make Buttons red when they are not in use and Green when they can be pressed that would be cool
 					if (gameState == gameStates::SpinReels123)
 					{
 						PrintReel(1, REEL_VALUES[i]);
+						DrawReel1Key(true);
 					}
 
 					if (gameState == gameStates::SpinReels123 || gameState == gameStates::SpinReels23)
 					{
 						PrintReel(2, REEL_VALUES[i]);
+
+						if(gameState == gameStates::SpinReels23)
+						{
+							DrawReel1Key(false);
+							DrawReel2Key(true);
+							DrawReel3Key(false);
+						}
 					}
 
 					if (gameState > gameStates::Idle && gameState <= gameStates::SpinReel3)
 					{
 						PrintReel(3, REEL_VALUES[i]);
+
+						if (gameState == gameStates::SpinReel3)
+						{
+							DrawReel1Key(false);
+							DrawReel2Key(false);
+							DrawReel3Key(true);
+						}
 					}
 
 					if (_kbhit())
@@ -202,6 +222,7 @@ int main()
 							keepSpinning = false;
 							reel3StopPos = i;
 							gameState = gameStates::AllReelsStopped;
+							DrawReel3Key(false);
 							break;
 						}
 					}
@@ -343,9 +364,9 @@ void DrawSlotMachine()
 	wcout << L"  ╚═╤═╤═╤════════════════════╤═╤═╤═╝" << endl;
 	wcout << L"  ╔═╧═╧═╧════════════════════╧═╧═╧═╗" << endl;
 	wcout << L"  ║┌──────────────────────────────┐║" << endl;
-	wcout << L"  ║│   ┌───┐    ┌───┐    ┌───┐    │║" << endl;
-	wcout << L"  ║│   │ Z │    │ X │    │ C │    │║" << endl;
-	wcout << L"  ║│   └───┘    └───┘    └───┘    │║" << endl;
+	wcout << L"  ║│                     ┌───┐    │║" << endl;
+	wcout << L"  ║│                     │ C │    │║" << endl;
+	wcout << L"  ║│                     └───┘    │║" << endl;
 	wcout << L"  ║└──────────────────────────────┘║" << endl;
 	wcout << L"  ╚═╤═╤═╤════════════════════╤═╤═╤═╝" << endl;
 	wcout << L"    └─┴─┘                    └─┴─┘  " << endl;
@@ -396,7 +417,7 @@ void DrawVunBox()
 	L"║ VULNERABILITY │                  ║",
 	L"╟───────────────┘                  ║",
 	L"║  ┌──────┐   ┌──────┐   ┌──────┐  ║",
-	L"║  │ sudo │   │ ping │   │ bash │  ║",
+	L"║  │ ---- │   │ ---- │   │ ---- │  ║",
 	L"║  └──────┘   └──────┘   └──────┘  ║",
 	L"╚══════════════════════════════════╝"
 	};
@@ -409,6 +430,90 @@ void DrawVunBox()
 
 		wcout << vunBox[i];
 	}
+}
+
+// Draw Reel Key 1
+void DrawReel1Key(bool active) 
+{
+	wstring reel1Key[3] = {
+	L"┌───┐",
+	L"│ Z │",
+	L"└───┘"
+	};
+
+	if (active) 
+	{
+		SetConsoleTextAttribute(hconsole, 10); // Set Name Light Green
+	}
+	else
+	{
+		SetConsoleTextAttribute(hconsole, 12); // Set Lights Red
+	}
+	   	  
+	for (int i = 0; i < 3; i++)
+	{
+		short pos = 14 + i;
+		SetConsoleCursorPosition(hconsole, { 7, pos });
+		wcout << reel1Key[i];
+	}
+
+	SetConsoleTextAttribute(hconsole, DEFAULT_TEXT_COLOR); // Set Console Text Color to Default
+}
+
+// Draw Reel Key 2
+void DrawReel2Key(bool active)
+{
+	wstring reel1Key[3] = {
+	L"┌───┐",
+	L"│ X │",
+	L"└───┘"
+	};
+
+	if (active)
+	{
+		SetConsoleTextAttribute(hconsole, 10); // Set Name Light Green
+	}
+	else
+	{
+		SetConsoleTextAttribute(hconsole, 12); // Set Lights Red
+	}
+
+	for (int i = 0; i < 3; i++)
+	{
+		short pos = 14 + i;
+		SetConsoleCursorPosition(hconsole, { 16, pos });
+		wcout << reel1Key[i];
+	}
+
+	SetConsoleTextAttribute(hconsole, DEFAULT_TEXT_COLOR); // Set Console Text Color to Default
+}
+
+// Draw Reel Key 3
+void DrawReel3Key(bool active)
+{
+	wstring reel1Key[3] = {
+	L"┌───┐",
+	L"│ C │",
+	L"└───┘"
+	};
+
+	if (active)
+	{
+		SetConsoleTextAttribute(hconsole, 10); // Set Name Light Green
+	}
+	else
+	{
+		SetConsoleTextAttribute(hconsole, 12); // Set Lights Red
+	}
+
+	for (int i = 0; i < 3; i++)
+	{
+		short pos = 14 + i;
+		SetConsoleCursorPosition(hconsole, { 25, pos });
+		wcout << reel1Key[i];
+	}
+
+	SetConsoleTextAttribute(hconsole, DEFAULT_TEXT_COLOR); // Set Console Text Color to Default
 }
 
 // Draw NetworkBox
