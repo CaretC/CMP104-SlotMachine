@@ -1,5 +1,5 @@
 ﻿/************************************************
-Slot machine gake made for CMP104 assessment. 
+Slot machine made for CMP104 assessment. 
 
 Aurthor: Joseph Lee
 Sudent # 1903399
@@ -17,9 +17,6 @@ Sudent # 1903399
 #include <Windows.h> // To get access to console screen buffer etc.
 
 using namespace std;
-
-// Defines
-// =======
 
 // Function Prototypes
 // ===================
@@ -39,9 +36,18 @@ void ClearDebugInfoMessage();
 int VictoryState(int, int, int);
 void PrintData(int);
 void PrintVisibility(int);
+void IncreaseVisibility(int&);
+void DecreaseVisibility(int&);
+void ResetVisibility(int&);
+void IncreaseData(int&, int);
+void DecreaseData(int&, int);
+void ResetData(int&);
+void IncreaseSpinSpeed(int&, int);
+void DecreaseSpinSpeed(int&, int);
+void ResetSpinSpeed(int&);
 
 
-void TestPrintResults(int, int, int, int);
+void TestPrintResults(int, int, int, int, int);
 
 
 // Globals
@@ -55,12 +61,19 @@ CONSOLE_CURSOR_INFO cursor_info;
 HANDLE hconsole;
 const int SIZE_X = 80; // Size of prinatble screen area X
 const int SIZE_Y = 25; // Size of prinatble screen area Y
-const int DEFAULT_TEXT_COLOR = 7;
+const int DEFAULT_TEXT_COLOR = 7; // Default Console Text Colour;
+const int DATA_PRIZE_2 = 3; // Data Prize For 2 Reels
+const int DATA_PRIZE_3 = 9; // Data Prize For 3 Reels
+const int DATA_PRIZE_VUN = 12; // Data Prize Vun
+const int DIFFICULTY = 50; // Ammount Reel Spin Speed Incrases in ms
 
 // Game Controls
-const char reel1Key = 'Z';
-const char reel2Key = 'X';
-const char reel3Key = 'C';
+const char REEL1_KEY = 'Z';
+const char REEL2_KEY = 'X';
+const char REEL3_KEY = 'C';
+const char RESET_KEY = 'R';
+const char PLAY_KEY = ' ';
+const char QUIT_KEY = 27; // Esc Key.
 
 // Reels
 const int REEL_LENGTH = 9;
@@ -80,12 +93,24 @@ int main()
 
 	// Game Variables
 	int gameActive = true;
-	int gameState = 0; // 0 = Idle, 1 = Spin Reels 1+2+3, 2 = Spin Reels 2+3, 3 = Spin Reel 3, 4 = All Reels Stopped, 5 = Game Over
+	int gameState = 0;
 	int reel1StopPos = 0;
 	int reel2StopPos = 0;
 	int reel3StopPos = 0;
 	int data = 0;
 	int visibility = 0;
+
+	enum gameStates 
+	{ 
+		Idle = 0,
+		SpinReels123 = 1,
+		SpinReels23 = 2,
+		SpinReel3 = 3,
+		AllReelsStopped = 4,
+		GameOver = 5,
+		Quit = 6
+	};
+
 
 	// Game Setup
 	GraphicsSetup();
@@ -101,7 +126,7 @@ int main()
 	while (gameActive)
 	{
 		// Idle State Loop
-		while (gameState == 0)
+		while (gameState == gameStates::Idle)
 		{
 			ToggleMachineName(nameStatus);
 
@@ -111,24 +136,23 @@ int main()
 			{
 				int key = _getch();
 
-				if (key == ' ') 
+				if (key == PLAY_KEY) 
 				{
-					gameState = 1;
+					gameState = gameStates::SpinReels123;
 				}
 
-				if (key == 27)
+				if (key == QUIT_KEY)
 				{
 					gameActive = false;
-					gameState = 6;
+					gameState = gameStates::Quit;
 				}
-
 			}
 
 			Sleep(lightSpeed);
 		}
 
 		// Spin State Loop
-		while (gameState > 0 && gameState <=3)
+		while (gameState > gameStates::Idle && gameState <= gameStates::SpinReel3)
 		{
 			bool keepSpinning = true;
 
@@ -140,17 +164,17 @@ int main()
 				for (int i = 0; i < REEL_LENGTH; i++)
 				{
 					// TODO: Make Buttons red when they are not in use and Green when they can be pressed that would be cool
-					if (gameState == 1)
+					if (gameState == gameStates::SpinReels123)
 					{
 						PrintReel(1, REEL_VALUES[i]);
 					}
 
-					if (gameState == 1 || gameState == 2)
+					if (gameState == gameStates::SpinReels123 || gameState == gameStates::SpinReels23)
 					{
 						PrintReel(2, REEL_VALUES[i]);
 					}
 
-					if (gameState > 0 && gameState <= 3)
+					if (gameState > gameStates::Idle && gameState <= gameStates::SpinReel3)
 					{
 						PrintReel(3, REEL_VALUES[i]);
 					}
@@ -159,25 +183,25 @@ int main()
 					{
 						int key = towupper(_getch());
 
-						if (key == 'Z' && gameState == 1)
+						if (key == REEL1_KEY && gameState == gameStates::SpinReels123)
 						{
 							reel1StopPos = i;
-							gameState = 2;
+							gameState = gameStates::SpinReels23;
 							break;
 						}
 
-						if (key == 'X' && gameState == 2)
+						if (key == REEL2_KEY && gameState == gameStates::SpinReels23)
 						{
 							reel2StopPos = i;
-							gameState = 3;
+							gameState = gameStates::SpinReel3;
 							break;
 						}
 
-						if (key == 'C' && gameState == 3)
+						if (key == REEL3_KEY && gameState == gameStates::SpinReel3)
 						{
 							keepSpinning = false;
 							reel3StopPos = i;
-							gameState = 4;
+							gameState = gameStates::AllReelsStopped;
 							break;
 						}
 					}
@@ -186,10 +210,7 @@ int main()
 				}
 			}
 
-			if (spinSpeed >= 50)
-			{
-				spinSpeed -= 50;
-			}
+			IncreaseSpinSpeed(spinSpeed, DIFFICULTY);
 
 			switch (VictoryState(reel1StopPos, reel2StopPos, reel3StopPos))
 			{
@@ -201,44 +222,44 @@ int main()
 				case 2:
 					ClearDebugInfoMessage();
 					PrintDebugInfoMessage(L"You win!", L"2 Commands");
-					data += 3;
-					visibility -= 1; // TODO: Make Decrement Function
+					IncreaseData(data, DATA_PRIZE_2);
+					DecreaseVisibility(visibility);
 					break;
 
 				case 3:
 					ClearDebugInfoMessage();
 					PrintDebugInfoMessage(L"You win!", L"3 Commands");
-					data += 9;
-					visibility = 0;
+					IncreaseData(data, DATA_PRIZE_3);
+					ResetVisibility(visibility);
 					break;
 
 				default:
 					ClearDebugInfoMessage();
 					PrintDebugInfoMessage(L"Failed!", L"Invalid Cmd");
-					visibility += 1;
+					IncreaseVisibility(visibility);
 					break;
 			}
 
 			// Update Scores
-			if (gameState != 0 && gameState != 5)
+			if (gameState != gameStates::Idle && gameState != gameStates::GameOver)
 			{
 				PrintData(data);
 
 				if (visibility <= 10)
 				{
 					PrintVisibility(visibility);
-					gameState = 0;
+					gameState = gameStates::Idle;
 				}
 				else
 				{
-					gameState = 5;
+					gameState = gameStates::GameOver;
 				}
 
-				TestPrintResults(reel1StopPos, reel2StopPos, reel3StopPos, spinSpeed);
+				TestPrintResults(reel1StopPos, reel2StopPos, reel3StopPos, spinSpeed, visibility);
 			}
 
 			// Game Over State
-			while (gameState == 5)
+			while (gameState == gameStates::GameOver)
 			{
 				ClearDebugInfoMessage();
 				PrintDebugInfoMessage(L"BUSTED!", L"Run Fast!");
@@ -250,11 +271,11 @@ int main()
 					int key = towupper(_getch());
 
 					// Reset Game
-					if (key == 'R')
+					if (key == RESET_KEY)
 					{
-						gameState = 0;
-						visibility = 0;
+						gameState = gameStates::Idle;						
 						data = 0;
+						ResetVisibility(visibility);
 						PrintData(data);
 						PrintVisibility(visibility);
 						break;
@@ -263,7 +284,6 @@ int main()
 
 				Sleep(lightSpeed);
 			}
-
 		}
 	}
 
@@ -637,8 +657,76 @@ void PrintVisibility(int visibilityScore)
 	SetConsoleTextAttribute(hconsole, DEFAULT_TEXT_COLOR); // Set Console Text Color to Default
 }
 
+// Increase Visibility
+void IncreaseVisibility(int& vis) 
+{
+	if (vis <= 10) 
+	{
+		vis ++;
+	}
+}
+
+// Decrease Visibility
+void DecreaseVisibility(int& vis)
+{
+	if (vis > 0)
+	{
+		vis--;
+	}
+}
+
+// Reset Visibility
+void ResetVisibility(int& vis)
+{
+	vis = 0;
+}
+
+// Increase Score
+void IncreaseData(int& data, int ammount)
+{
+	data += ammount;
+}
+
+// Decrease Score
+void DecreaseData(int& data, int ammount)
+{
+	if ((data - ammount) >= 0)
+	{
+		data -= ammount;
+	}
+}
+
+// Reset Score
+void ResetData(int& data)
+{
+	data = 0;
+}
+
+// Increase Spin Speed
+void IncreaseSpinSpeed(int& spinSpeed, int ammount)
+{
+	if ((spinSpeed - ammount) >= 0)
+	{
+		spinSpeed -= ammount;
+	}
+}
+
+// Decrease Spin Speed
+void DecreaseSpinSpeed(int& spinSpeed, int ammount)
+{
+	spinSpeed += ammount;
+}
+
+// Reset Spin Speed
+void ResetSpinSpeed(int& spinSpeed)
+{
+	spinSpeed = 400;
+}
+
+
+
 // TODO: This is a test function remove when done
-void TestPrintResults(int reel1, int reel2, int reel3, int speed) 
+void TestPrintResults(int reel1, int reel2, int reel3, int speed, int vis) 
 {
 	SetConsoleCursorPosition(hconsole, { 0,24 });
 
@@ -647,5 +735,7 @@ void TestPrintResults(int reel1, int reel2, int reel3, int speed)
 	wcout << L"Reel 2: " << REEL_VALUES[reel2] << endl;
 	wcout << L"Reel 3: " << REEL_VALUES[reel3] << endl;
 	wcout << "The new spin speed is: " << speed ;
+	wcout << L" Visibility: " << vis;
 }
+
 
