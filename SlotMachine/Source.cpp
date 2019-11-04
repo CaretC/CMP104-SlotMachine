@@ -72,7 +72,9 @@ const int DEFAULT_TEXT_COLOR = 7; // Default Console Text Colour;
 const int DATA_PRIZE_2 = 3; // Data Prize For 2 Reels
 const int DATA_PRIZE_3 = 9; // Data Prize For 3 Reels
 const int DATA_PRIZE_VUN = 12; // Data Prize Vun
-const int DIFFICULTY = 50; // Ammount Reel Spin Speed Incrases in ms
+const int SPIN_SPEED_PRIZE_2 = 50;
+const int SPIN_SPEED_PRIZE_3 = 75;
+const int DIFFICULTY = 50; // Ammount Reel Spin Speed Incrases in ms // TODO: Make this more mean each level.
 
 
 // Game Controls
@@ -251,6 +253,9 @@ int main()
 				case 1:
 					ClearDebugInfoMessage();
 					PrintDebugInfoMessage(L"You win!", L"Vun Exploited");
+					IncreaseData(data, DATA_PRIZE_VUN);
+					ResetVisibility(visibility);
+					ResetSpinSpeed(spinSpeed);
 					break;
 
 				case 2:
@@ -258,6 +263,7 @@ int main()
 					PrintDebugInfoMessage(L"You win!", L"2 Commands");
 					IncreaseData(data, DATA_PRIZE_2);
 					DecreaseVisibility(visibility);
+					DecreaseSpinSpeed(spinSpeed, SPIN_SPEED_PRIZE_2);
 					break;
 
 				case 3:
@@ -265,6 +271,7 @@ int main()
 					PrintDebugInfoMessage(L"You win!", L"3 Commands");
 					IncreaseData(data, DATA_PRIZE_3);
 					ResetVisibility(visibility);
+					DecreaseSpinSpeed(spinSpeed, SPIN_SPEED_PRIZE_3);
 					break;
 
 				default:
@@ -288,8 +295,6 @@ int main()
 				{
 					gameState = gameStates::GameOver;
 				}
-
-				TestPrintResults(reel1StopPos, reel2StopPos, reel3StopPos, spinSpeed, visibility);
 			}
 
 			// Game Over State
@@ -310,6 +315,7 @@ int main()
 						gameState = gameStates::Idle;						
 						ResetData(data);
 						ResetVisibility(visibility);
+						ResetSpinSpeed(spinSpeed);
 						PrintData(data);
 						PrintVisibility(visibility);
 						break;
