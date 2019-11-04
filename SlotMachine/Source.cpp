@@ -15,6 +15,8 @@ Sudent # 1903399
 #include <conio.h> // For reading key presses
 #include <stdio.h> // Is this included in io.h?
 #include <Windows.h> // To get access to console screen buffer etc.
+#include <cstdlib> // Used for Random Number Generation
+#include <ctime> // Date and time info (Used as random Number Seed)
 
 using namespace std;
 
@@ -33,7 +35,7 @@ void PrintReel(int, wstring);
 void PrintDebugInfoMessage(wstring);
 void PrintDebugInfoMessage(wstring, wstring);
 void ClearDebugInfoMessage();
-int VictoryState(int, int, int);
+int VictoryState(int, int, int, int, int, int);
 void PrintData(int);
 void PrintVisibility(int);
 void IncreaseVisibility(int&);
@@ -48,6 +50,8 @@ void ResetSpinSpeed(int&);
 void DrawReel1Key(bool);
 void DrawReel2Key(bool);
 void DrawReel3Key(bool);
+int RandomReelPosition(int);
+void PrintVunReel(int, int, int&);
 
 
 void TestPrintResults(int, int, int, int, int);
@@ -69,6 +73,7 @@ const int DATA_PRIZE_2 = 3; // Data Prize For 2 Reels
 const int DATA_PRIZE_3 = 9; // Data Prize For 3 Reels
 const int DATA_PRIZE_VUN = 12; // Data Prize Vun
 const int DIFFICULTY = 50; // Ammount Reel Spin Speed Incrases in ms
+
 
 // Game Controls
 const char REEL1_KEY = 'Z';
@@ -100,6 +105,9 @@ int main()
 	int reel1StopPos = 0;
 	int reel2StopPos = 0;
 	int reel3StopPos = 0;
+	int vunReel1 = 0;
+	int vunReel2 = 0;
+	int vunReel3 = 0;
 	int data = 0;
 	int visibility = 0;
 
@@ -113,9 +121,9 @@ int main()
 		GameOver = 5,
 		Quit = 6
 	};
-
-
+	   
 	// Game Setup
+	srand(time(0));
 	GraphicsSetup();
 	DrawSlotMachine();
 	DrawStatusBox();
@@ -164,6 +172,11 @@ int main()
 
 			ClearDebugInfoMessage();
 			PrintDebugInfoMessage(L"Spinning ...");
+
+			// Vun
+			PrintVunReel(1, RandomReelPosition(REEL_LENGTH), vunReel1);
+			PrintVunReel(2, RandomReelPosition(REEL_LENGTH), vunReel2);
+			PrintVunReel(3, RandomReelPosition(REEL_LENGTH), vunReel3);
 
 			while (keepSpinning)
 			{
@@ -233,7 +246,7 @@ int main()
 
 			IncreaseSpinSpeed(spinSpeed, DIFFICULTY);
 
-			switch (VictoryState(reel1StopPos, reel2StopPos, reel3StopPos))
+			switch (VictoryState(reel1StopPos, reel2StopPos, reel3StopPos, vunReel1, vunReel2, vunReel3))
 			{
 				case 1:
 					ClearDebugInfoMessage();
@@ -295,7 +308,7 @@ int main()
 					if (key == RESET_KEY)
 					{
 						gameState = gameStates::Idle;						
-						data = 0;
+						ResetData(data);
 						ResetVisibility(visibility);
 						PrintData(data);
 						PrintVisibility(visibility);
@@ -705,6 +718,34 @@ void PrintDebugInfoMessage(wstring messageLine1, wstring messageLine2)
 	wcout << "~$ " << messageLine2;
 }
 
+// Print Vun Reel
+void PrintVunReel(int reel, int pos, int& reelPosStore)
+{
+	switch (reel)
+	{
+	case 1:
+		SetConsoleCursorPosition(hconsole, { 45 , 11 });
+		break;
+
+	case 2: 
+		SetConsoleCursorPosition(hconsole, { 56 , 11 });
+		break;
+
+	case 3:
+		SetConsoleCursorPosition(hconsole, { 67 , 11 });
+		break;
+
+	default:
+		break;
+	}
+
+	// Print
+	wcout << REEL_VALUES[pos];
+
+	// Store
+	reelPosStore = pos;
+}
+
 // Clear Debug Info Message
 void ClearDebugInfoMessage()
 {
@@ -712,11 +753,11 @@ void ClearDebugInfoMessage()
 }
 
 // Victory State
-int VictoryState(int reel1, int reel2, int reel3)
+int VictoryState(int reel1, int reel2, int reel3, int vun1, int vun2, int vun3)
 {
 	int victoryState = 0; // 0 = no win, 1 = vulnarability, 2 = 2 reels, 3 = 3 reels
 
-	if (reel1 == 19)
+	if (reel1 == vun1 && reel2 == vun2 && reel3 == vun3)
 	{
 		victoryState = 1;
 	}
@@ -826,6 +867,16 @@ void DecreaseSpinSpeed(int& spinSpeed, int ammount)
 void ResetSpinSpeed(int& spinSpeed)
 {
 	spinSpeed = 400;
+}
+
+// RandomReelPos
+int RandomReelPosition(int reelLength) 
+{
+	int randomPos = 0;
+
+	randomPos = rand() % reelLength;
+
+	return randomPos;
 }
 
 
