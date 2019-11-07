@@ -24,6 +24,7 @@ using namespace std;
 // ===================
 
 void GraphicsSetup();
+void IntroScreen();
 void DrawSlotMachine();
 void DrawStatusBox();
 void DrawTargetBox();
@@ -33,7 +34,7 @@ void ToggleSlotMachineLights(bool&);
 void ToggleMachineName(bool&);
 void PrintReel(int, wstring);
 void PrintDebugInfoMessage(wstring);
-void PrintDebugInfoMessage(wstring, wstring);
+void PrintDebugInfoMessage(wstring, wstring, wstring);
 void ClearDebugInfoMessage();
 int VictoryState(int, int, int, int, int, int);
 void PrintData(int);
@@ -52,6 +53,11 @@ void DrawReel2Key(bool);
 void DrawReel3Key(bool);
 int RandomReelPosition(int);
 void PrintVunReel(int, int, int&);
+void PrintLevelInfo(int);
+int SelectLevel(int dataScore);
+void SetDifficulty(int&, int);
+void PrintMachineBanner(wstring, bool);
+void QuitScreen();
 
 
 void TestPrintResults(int, int, int, int, int);
@@ -71,8 +77,7 @@ const int DATA_PRIZE_3 = 9; // Data Prize For 3 Reels
 const int DATA_PRIZE_VUN = 12; // Data Prize Vun
 const int SPIN_SPEED_PRIZE_2 = 50;
 const int SPIN_SPEED_PRIZE_3 = 75;
-const int START_SPIN_SPEED = 500;
-const int DIFFICULTY = 50; // Ammount Reel Spin Speed Incrases in ms // TODO: Make this more mean each level.
+const int START_SPIN_SPEED = 350;
 const enum gameStates {
 	IDLE = 0,
 	SPIN_REELS_123 = 1,
@@ -118,7 +123,7 @@ int main()
 	int spinSpeed = START_SPIN_SPEED;
 
 	// Game Variables
-	int gameActive = true;
+	int gameActive = false;
 	int gameState = 0;
 	int reel1StopPos = 0;
 	int reel2StopPos = 0;
@@ -128,10 +133,35 @@ int main()
 	int vunReel3 = 0;
 	int data = 0;
 	int visibility = 0;
-	   
+	int level = 1;
+	int difficulty = 50; // Ammount Reel Spin Speed Incrases in ms.
+	
+
+
 	// Game Setup
 	srand(time(0));
 	GraphicsSetup();
+
+	// Intro
+	IntroScreen();
+
+	while (!gameActive)
+	{
+		if (_kbhit())
+		{
+			int key = _getch();
+
+			if (key == PLAY_KEY)
+			{
+				gameActive = true;
+			}
+		}
+	}
+
+	system("CLS");
+
+
+	// Game
 	DrawSlotMachine();
 	DrawStatusBox();
 	DrawTargetBox();
@@ -142,7 +172,8 @@ int main()
 	DrawReel1Key(false);
 	DrawReel2Key(false);
 	DrawReel3Key(false);
-	
+	PrintDebugInfoMessage(L"Welcome to HACK MACHINE", L"Press SPACE to spin reels", L"Press Esc to quit");
+	PrintLevelInfo(level);
 
 	while (gameActive)
 	{
@@ -152,7 +183,7 @@ int main()
 			ToggleMachineName(nameStatus);
 
 			ToggleSlotMachineLights(lightStatus);
-
+					   
 			if (_kbhit())
 			{
 				int key = _getch();
@@ -177,24 +208,31 @@ int main()
 		{
 			bool keepSpinning = true;
 
-			ClearDebugInfoMessage();
-			PrintDebugInfoMessage(L"Spinning ...");
-
 			// Vun
 			PrintVunReel(1, RandomReelPosition(REEL_LENGTH), vunReel1);
 			PrintVunReel(2, RandomReelPosition(REEL_LENGTH), vunReel2);
 			PrintVunReel(3, RandomReelPosition(REEL_LENGTH), vunReel3);
 
+			// Instructions
+			ClearDebugInfoMessage();
+			PrintDebugInfoMessage(L"HACKING!", L"Press Z, X, C to stop reels", L" ");
+
+			// Banner
+			PrintMachineBanner(L"   HACKING  ", false);
+
+			// Spinning Animation
 			while (keepSpinning)
 			{
 				for (int i = 0; i < REEL_LENGTH; i++)
 				{
+					// Reel 1
 					if (gameState == gameStates::SPIN_REELS_123)
 					{
 						PrintReel(1, REEL_VALUES[i]);
 						DrawReel1Key(true);
 					}
 
+					// Reel 2
 					if (gameState == gameStates::SPIN_REELS_123 || gameState == gameStates::SPIN_REELS_23)
 					{
 						PrintReel(2, REEL_VALUES[i]);
@@ -207,6 +245,7 @@ int main()
 						}
 					}
 
+					// Reel 3
 					if (gameState > gameStates::IDLE && gameState <= gameStates::SPIN_REEL_3)
 					{
 						PrintReel(3, REEL_VALUES[i]);
@@ -219,6 +258,7 @@ int main()
 						}
 					}
 
+					// Keybaord Input Capture
 					if (_kbhit())
 					{
 						int key = towupper(_getch());
@@ -251,13 +291,14 @@ int main()
 				}
 			}
 
-			IncreaseSpinSpeed(spinSpeed, DIFFICULTY);
+			IncreaseSpinSpeed(spinSpeed, difficulty); // Increase after each spin attempt
 
+			// Check Visctory State
 			switch (VictoryState(reel1StopPos, reel2StopPos, reel3StopPos, vunReel1, vunReel2, vunReel3))
 			{
 				case 1:
 					ClearDebugInfoMessage();
-					PrintDebugInfoMessage(L"You win!", L"Vun Exploited");
+					PrintDebugInfoMessage(L"ACCESS GRANTED!", L"Vulnerability Exploited!", L"12GB of data downloaded.");
 					IncreaseData(data, DATA_PRIZE_VUN);
 					ResetVisibility(visibility);
 					ResetSpinSpeed(spinSpeed);
@@ -265,15 +306,14 @@ int main()
 
 				case 2:
 					ClearDebugInfoMessage();
-					PrintDebugInfoMessage(L"You win!", L"2 Commands");
+					PrintDebugInfoMessage(L"ACCESS GRANTED!", L"Two Command Combo", L"3GB of data downloaded.");
 					IncreaseData(data, DATA_PRIZE_2);
-					DecreaseVisibility(visibility);
 					DecreaseSpinSpeed(spinSpeed, SPIN_SPEED_PRIZE_2);
 					break;
 
 				case 3:
 					ClearDebugInfoMessage();
-					PrintDebugInfoMessage(L"You win!", L"3 Commands");
+					PrintDebugInfoMessage(L"ACCESS GRANTED!", L"Three Command Combo", L"9GB of data downloaded.");
 					IncreaseData(data, DATA_PRIZE_3);
 					ResetVisibility(visibility);
 					DecreaseSpinSpeed(spinSpeed, SPIN_SPEED_PRIZE_3);
@@ -281,7 +321,7 @@ int main()
 
 				default:
 					ClearDebugInfoMessage();
-					PrintDebugInfoMessage(L"Failed!", L"Invalid Cmd");
+					PrintDebugInfoMessage(L"ACCESS DENIED!", L"Invalid Command Entered", L"Visibility Increased...");
 					IncreaseVisibility(visibility);
 					break;
 			}
@@ -291,25 +331,37 @@ int main()
 			{
 				PrintData(data);
 
+				// Check if Game is Over
 				if (visibility <= 10)
 				{
 					PrintVisibility(visibility);
 					gameState = gameStates::IDLE;
+
+					// Check if level increases
+					level = SelectLevel(data);
+
+					// Update Level
+					PrintLevelInfo(level);
+
+					// Set difficulty using level
+					SetDifficulty(difficulty, level);
 				}
 				else
 				{
+					// Game Over
 					gameState = gameStates::GAME_OVER;
+					ClearDebugInfoMessage();
+					PrintDebugInfoMessage(L"GAME OVER!", L"Press R to replay game", L"Press Esc to quit");
+					PrintMachineBanner(L" GAME OVER  ", true);
 				}
 			}
 
 			// Game Over State
 			while (gameState == gameStates::GAME_OVER)
 			{
-				ClearDebugInfoMessage();
-				PrintDebugInfoMessage(L"BUSTED!", L"Run Fast!");
-
 				ToggleSlotMachineLights(lightStatus);
 
+				// Keyboard Input Capture
 				if (_kbhit())
 				{
 					int key = towupper(_getch());
@@ -323,7 +375,15 @@ int main()
 						ResetSpinSpeed(spinSpeed);
 						PrintData(data);
 						PrintVisibility(visibility);
+						PrintDebugInfoMessage(L"Welcome to HACK MACHINE", L"Press SPACE to spin reels", L"Press Esc to quit");
 						break;
+					}
+
+					// Quit Game
+					if (key == QUIT_KEY)
+					{
+						gameActive = false;
+						gameState = gameStates::QUIT;
 					}
 				}
 
@@ -331,6 +391,9 @@ int main()
 			}
 		}
 	}
+	
+	system("CLS");
+	QuitScreen();
 
 	return 0;
 }
@@ -362,6 +425,20 @@ void GraphicsSetup()
 
 	// Set Cursor Info
 	SetConsoleCursorInfo(hconsole, &cursor_info);
+}
+
+// Print Intro Screen
+void IntroScreen()
+{
+	wcout << L"PLACE HOLDER FOR INTRO SCREEN" << endl;
+	wcout << L"PRESS SPACE TO PLAY" << endl;
+}
+
+// Print Quit Screen
+void QuitScreen()
+{
+	wcout << L"PLACE HOLDER QUIT SCREEN" << endl;
+	wcout << L"YOU HAVE QUIT" << endl;
 }
 
 // Draws Slot Machine
@@ -406,11 +483,11 @@ void DrawTargetBox()
 {
 	wstring targetBox[7] = {
 		L"╔════════╤═════════════════════════╗",
-		L"║ TARGET │ LEVEL 1: Neighbour's    ║",
+		L"║ TARGET │                         ║",
 		L"╟────────┴─────────────────────────╢",
-		L"║ In the post Brexit era any data  ║",
-		L"║ can be worth something to the    ║",
-		L"║ government.                      ║",
+		L"║                                  ║",
+		L"║                                  ║",
+		L"║                                  ║",
 		L"╚══════════════════════════════════╝"
 	};
 
@@ -674,6 +751,34 @@ void ToggleMachineName(bool& status)
 	
 }
 
+// Print Machine Banner Message
+void PrintMachineBanner(wstring message, bool isWarning)
+{
+	if (message.length() <= 12) 
+	{
+		if (isWarning)
+		{
+			SetConsoleTextAttribute(hconsole, 12); // Set Lights Red
+		}
+
+		else
+		{
+			SetConsoleTextAttribute(hconsole, 10); // Set Name Light Green
+		}
+
+		SetConsoleCursorPosition(hconsole, { 13,2 });
+
+		wcout << message;
+
+		SetConsoleTextAttribute(hconsole, DEFAULT_TEXT_COLOR); // Set Console Text Color to Default
+	}
+
+	else
+	{
+		OutputDebugString("DEBUG: MachineBanner message too long");
+	}
+}
+
 // Print a reel
 void PrintReel(int reelNumber, wstring reelValue)
 {
@@ -711,13 +816,16 @@ void PrintDebugInfoMessage(wstring message)
 	wcout << "~$ " << message;
 }
 
-void PrintDebugInfoMessage(wstring messageLine1, wstring messageLine2)
+void PrintDebugInfoMessage(wstring messageLine1, wstring messageLine2, wstring messageLine3)
 {
 	SetConsoleCursorPosition(hconsole, { 43, 17 });
 	wcout << "~$ " << messageLine1;
 
 	SetConsoleCursorPosition(hconsole, { 43, 18 });
 	wcout << "~$ " << messageLine2;
+
+	SetConsoleCursorPosition(hconsole, { 43, 19 });
+	wcout << "~$ " << messageLine3;
 }
 
 // Print Vun Reel
@@ -749,10 +857,90 @@ void PrintVunReel(int reel, int pos, int& reelPosStore)
 	reelPosStore = pos;
 }
 
+// Pint Level Info
+void PrintLevelInfo(int levelValue)
+{
+	if (levelValue > 0 && levelValue <= 6)
+	{
+		wstring levelNames[6] = {
+			L"Level 1: Neighbour's",
+			L"Level 2: Small Office",
+			L"Level 3: Big Office",
+			L"Level 4: Small Website",
+			L"Level 5: Large Website",
+			L"Level 6: Government"
+		};
+
+		wstring levelDescriptions[6] = {
+			L"Stating things out easy.",
+			L"Upping the stakes?",
+			L"Now the real game begins!",
+			L"Youu're no script kiddie now!",
+			L"You're aiming big now!",
+			L"AHHH! You're crazy!"
+		};
+
+
+		// Print Level Name
+		SetConsoleCursorPosition(hconsole, { 51 , 1 });
+		wcout << L"                        ";
+
+		SetConsoleCursorPosition(hconsole, { 51 , 1 });
+		wcout << levelNames[(levelValue - 1)];
+
+		// Print Level Description
+		SetConsoleCursorPosition(hconsole, { 42 , 3 });
+		wcout << L"                                ";
+
+		SetConsoleCursorPosition(hconsole, { 42 , 3 });
+		wcout << levelDescriptions[(levelValue -1)];
+	}
+
+	else 
+	{
+		OutputDebugString("DEBUG: Invalid Level Selected");
+	}	
+}
+
+// Select Level
+int SelectLevel(int dataScore) 
+{
+	if (dataScore > 70)
+	{
+		return 6;
+	}
+
+	else if (dataScore > 55)
+	{
+		return 5;
+	}
+
+	else if (dataScore > 40)
+	{
+		return 4;
+	}
+
+	else if (dataScore > 25)
+	{
+		return 3;
+	}
+
+	if (dataScore > 10)
+	{
+		return 2;
+	}
+}
+
+// Set difficulty
+void SetDifficulty(int& difficulty, int level)
+{
+	difficulty = 50 * level;
+}
+
 // Clear Debug Info Message
 void ClearDebugInfoMessage()
 {
-	PrintDebugInfoMessage(L"              ", L"              ");
+	PrintDebugInfoMessage(L"                           ", L"                           ", L"                           ");
 }
 
 // Victory State
