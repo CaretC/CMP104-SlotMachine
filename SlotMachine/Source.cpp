@@ -12,8 +12,8 @@ Sudent # 1903399
 #include <iostream> // For Console i/o
 #include <fcntl.h> // To set 16 encoding
 #include <io.h> // Used to get _setmode()
+#include <stdio.h> // Used with above.
 #include <conio.h> // For reading key presses
-#include <stdio.h> 
 #include <Windows.h> // To get access to console screen buffer etc.
 #include <cstdlib> // Used for Random Number Generation
 #include <ctime> // Date and time info (Used as random Number Seed)
@@ -28,7 +28,7 @@ void DrawSlotMachine();
 void DrawStatusBox();
 void DrawTargetBox();
 void DrawVunBox();
-void DrawNetworkBox();
+void DrawDebugInfo();
 void ToggleSlotMachineLights(bool&);
 void ToggleMachineName(bool&);
 void PrintReel(int, wstring);
@@ -61,11 +61,8 @@ void TestPrintResults(int, int, int, int, int);
 // =======
 
 // Console Globals
-CONSOLE_SCREEN_BUFFER_INFO console_info;
 CONSOLE_CURSOR_INFO cursor_info;
 HANDLE hconsole;
-const int SIZE_X = 80; // Size of prinatble screen area X
-const int SIZE_Y = 25; // Size of prinatble screen area Y
 const int DEFAULT_TEXT_COLOR = 7; // Default Console Text Colour;
 
 // Game Consts
@@ -139,7 +136,7 @@ int main()
 	DrawStatusBox();
 	DrawTargetBox();
 	DrawVunBox();
-	DrawNetworkBox();
+	DrawDebugInfo();
 	PrintData(data);
 	PrintVisibility(visibility);
 	DrawReel1Key(false);
@@ -344,25 +341,19 @@ int main()
 // Set up console graphics engine for the game
 void GraphicsSetup()
 {
-	bool result = _setmode(_fileno(stdout), _O_U16TEXT); // Set UniCode Chars
+	// Enables File Translation to U16 Text so console can display unicode
+	// makes stout print in U16, so all chars and string will need to be 16-bit,
+	// i.e wchar, wstring.
 
-	// Debug Message
-	OutputDebugString("DEBUG: Initializing console graphics engine.");
+	// Return assigned to result to prevent complier warning, result not used. 
+	bool result = _setmode(_fileno(stdout), _O_U16TEXT);
 
-	// Define Console Screen Size in COORD
-	COORD console_size = { SIZE_X, SIZE_Y };
 
-	// open i/o channel to console screen 
-	// TODO: Look up how this actually works as it is an unknown line of code.
+	// 	CONOUT$ file name selected to open handle to current console active screen
+	// buffer. 
 	hconsole = CreateFile(TEXT("CONOUT$"), GENERIC_WRITE | GENERIC_READ,
 		FILE_SHARE_READ | FILE_SHARE_WRITE, 0L, OPEN_EXISTING, 
 		FILE_ATTRIBUTE_NORMAL, 0L);
-
-	// Set Screen Buffer Size For Console
-	SetConsoleScreenBufferSize(hconsole, console_size);
-
-	// Get Console Info
-	GetConsoleScreenBufferInfo(hconsole, &console_info);
 
 	// Get Cursor Info
 	GetConsoleCursorInfo(hconsole, &cursor_info);
@@ -431,9 +422,6 @@ void DrawTargetBox()
 
 		wcout << targetBox[i];
 	}
-
-
-
 }
 
 // Draw Vun Box
@@ -543,10 +531,10 @@ void DrawReel3Key(bool active)
 	SetConsoleTextAttribute(hconsole, DEFAULT_TEXT_COLOR); // Set Console Text Color to Default
 }
 
-// Draw NetworkBox
-void DrawNetworkBox()
+// Draw Debug Info Box
+void DrawDebugInfo()
 {
-	wstring networkBox[10] = {
+	wstring debugInfoBox[10] = {
 	L"╔════════════╤═════════════════════╗",
 	L"║ DEBUG INFO │                     ║",
 	L"╟────────────┘                     ║",
@@ -565,7 +553,7 @@ void DrawNetworkBox()
 
 		SetConsoleCursorPosition(hconsole, { 40, pos });
 
-		wcout << networkBox[i];
+		wcout << debugInfoBox[i];
 	}
 }
 
@@ -750,6 +738,7 @@ void PrintVunReel(int reel, int pos, int& reelPosStore)
 		break;
 
 	default:
+		OutputDebugString("DEBUG: VunReel number out of range.");
 		break;
 	}
 
