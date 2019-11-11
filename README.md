@@ -1,6 +1,9 @@
 CMP 104 - Fruit Machine Assignment
 ==================================
 
+Concept
+=======
+
 Overview
 --------
 
@@ -117,6 +120,24 @@ A rough plan of the main game loop
 		* Game Over State
 * End of While
 
+Game
+====
+
+Overview
+--------
+
+The fruit machine game is a hacking themed game. See below screenshots for Intro Scree, Game Screen and Quit Screen:
+
+![Intro Screen](readmeImages/IntroScreen.PNG)
+
+
+![Game Screen](readmeImages/GameScreen.PNG)
+
+
+![Quit Screen](readmeImages/QuitScreen.PNG)
+
+
+
 Includes
 ---------
 
@@ -125,7 +146,7 @@ Includes
 #include <fcntl.h> // To set 16 encoding
 #include <io.h> // Used to get _setmode()
 #include <conio.h> // For reading key presses
-#include <stdio.h> 
+#include <stdio.h> // Used with above.
 #include <Windows.h> // To get access to console screen buffer etc.
 #include <cstdlib> // Used for Random Number Generation
 #include <ctime> // Date and time info (Used as random Number Seed)
@@ -220,8 +241,7 @@ const int DATA_PRIZE_3 = 9; // Data Prize For 3 Reels
 const int DATA_PRIZE_VUN = 12; // Data Prize Vun
 const int SPIN_SPEED_PRIZE_2 = 50;
 const int SPIN_SPEED_PRIZE_3 = 75;
-const int START_SPIN_SPEED = 500;
-const int DIFFICULTY = 50; // Ammount Reel Spin Speed Incrases in ms // TODO: Make this more mean each level.
+const int START_SPIN_SPEED = 350;
 const enum gameStates {
 	IDLE = 0,
 	SPIN_REELS_123 = 1,
@@ -319,6 +339,80 @@ This function also sets the console cursor visibility to `false` to prevent it d
 	SetConsoleCursorInfo(hconsole, &cursor_info);
 ```
 
+### IntroScreen()
+
+The `IntroScreen` function prints the introduction screen for the game. This screen has game title, story and instructions. 
+
+```cpp
+void IntroScreen()
+{
+	wstring gameTitle[7] = {
+		L" #     #    #     #####  #    #          #     #    #     #####  #     # ### #     # #######",
+		L" #     #   # #   #     # #   #           ##   ##   # #   #     # #     #  #  ##    # #      ",
+		L" #     #  #   #  #       #  #            # # # #  #   #  #       #     #  #  # #   # #      ",
+		L" ####### #     # #       ###             #  #  # #     # #       #######  #  #  #  # #####  ",
+		L" #     # ####### #       #  #            #     # ####### #       #     #  #  #   # # #      ",
+		L" #     # #     # #     # #   #           #     # #     # #     # #     #  #  #    ## #      ",
+		L" #     # #     #  #####  #    #          #     # #     #  #####  #     # ### #     # #######",
+	};
+
+	// Print Title
+	SetConsoleTextAttribute(hconsole, 10); // Set Name Light Green
+
+	for(int i = 0; i < 7; i++)
+	{
+		short pos = 1 + i;
+
+		SetConsoleCursorPosition(hconsole, { 10, pos});
+		wcout << gameTitle[i];
+	}
+
+	SetConsoleTextAttribute(hconsole, DEFAULT_TEXT_COLOR); // Set Console Text Color to Default
+
+	wcout << endl;
+	wcout << endl;
+	wcout << L"  Welcome to HACK MACHINE. It may look like a simple fruit machine but behind the cover is and advanced brute-force" << endl;
+	wcout << L"  hacking device. Due to the current oppressive government policies on tech access and internet freedoms it has been" << endl;
+	wcout << L"  put together with bit of old machinery found in the abandoned ruins of the city. However, with hard times comes " << endl;
+	wcout << L"  opportunity. There is now a very lucrative market in trading old data, it has become the everyday currancy of the" << endl;
+	wcout << L"  age, and everyone is at it! So join in with your HACK MACHINE and make some cash in this post-Brexit wasteland!" << endl;
+	wcout << endl;
+	wcout << L"  To use the HACK MACHINE, use the SPACE to start the machine hacking, press Z, X and C to stop the reels. Each" << endl;
+	wcout << L"  machine has a vulnerability that can be exploidted for BIG rewards. The machine also has 2 command and 3 command" << endl;
+	wcout << L"  which yeild some data access, but no the full data dump gained from exploiting a vulnerability." << endl;
+	wcout << endl;
+	wcout << L"  However, care should be taken as the government are on the look out for hackers and each failed attempt to hack a" << endl;
+	wcout << L"  device makes you a little more visibile. However, a nifty 3 command combo or vulnerability expolit can hid you again." << endl;
+	wcout << L"  Each hack means the reels spin faster due to the machine's contruction, only data downloads can slow it down. As the " << endl;
+	wcout << L"  devices get harder to hack the amount this reel spin speed increases after each failed attempt increases. So take" << endl;
+	wcout << L"  your time and hack those machines first time." << endl;
+	wcout << endl;
+	wcout << endl;
+	wcout << L"                                             PRESS SPACE TO PLAY ... " << endl;
+}
+```
+
+### QuitScreen(int score)
+
+The `QuitScreen` function prints the quit screen, this screen displays a floppy disc image and the `score` the player reached when the game was quit.
+
+```cpp
+void QuitScreen(int score)
+{
+	wcout << endl;
+	wcout << endl;
+	wcout << L"            YOU ESCAPED WITH " << score << "GBs OF DATA!" << endl;
+	wcout << L"                    ______________" << endl;
+	wcout << L"                   |[]            |" << endl;
+	wcout << L"                   |  __________  |" << endl;
+	wcout << L"                   |  |        |  |" << endl;
+	wcout << L"                   |  |  DATA  |  |" << endl;
+	wcout << L"                   |  |________|  |" << endl;
+	wcout << L"                   |   ________   |" << endl;
+	wcout << L"                   |   [ [ ]  ]   |" << endl;
+	wcout << L"                   \\___[_[_]__]___|" << endl;
+}
+```
 ### DrawSlotMachine()
 
 The `DrawSlotMachine` function draws the outline of the slotmachine to the console. With a top-left position of (**1,1**).
@@ -362,18 +456,18 @@ The `DrawStatusBox` function draws the outline of the status box below the slotm
 
 ### DrawTargetBox()
 
-The `DrawTargetBox` function draws target box. This box is used to display level name and target description. It has a top-left position of (**40,0**). **TODO: This is still just a place holder and needs mechanics added to game.**
+The `DrawTargetBox` function draws target box. This box is used to display level name and target description. It has a top-left position of (**40,0**). 
 
 ```cpp
 void DrawTargetBox()
 {
 	wstring targetBox[7] = {
 		L"╔════════╤═════════════════════════╗",
-		L"║ TARGET │ LEVEL 1: Neighbour's    ║",
+		L"║ TARGET │                         ║",
 		L"╟────────┴─────────────────────────╢",
-		L"║ In the post Brexit era any data  ║",
-		L"║ can be worth something to the    ║",
-		L"║ government.                      ║",
+		L"║                                  ║",
+		L"║                                  ║",
+		L"║                                  ║",
 		L"╚══════════════════════════════════╝"
 	};
 
@@ -417,10 +511,103 @@ void DrawVunBox()
 ```
 
 ### DrawReel1Key()
+
+The `DrawReel1Key` function draws the reel 1 key button indication under reel 1, it is red for inactive and green for active. 
+
+```cpp
+void DrawReel1Key(bool active) 
+{
+	wstring reel1Key[3] = {
+	L"┌───┐",
+	L"│ Z │",
+	L"└───┘"
+	};
+
+	if (active) 
+	{
+		SetConsoleTextAttribute(hconsole, 10); // Set Name Light Green
+	}
+	else
+	{
+		SetConsoleTextAttribute(hconsole, 12); // Set Lights Red
+	}
+	   	  
+	for (int i = 0; i < 3; i++)
+	{
+		short pos = 14 + i;
+		SetConsoleCursorPosition(hconsole, { 7, pos });
+		wcout << reel1Key[i];
+	}
+
+	SetConsoleTextAttribute(hconsole, DEFAULT_TEXT_COLOR); // Set Console Text Color to Default
+}
+
+```
 ### DrawReel2Key()
+
+The `DrawReel2Key` function draws the reel 2 key button indication under reel 2, it is red for inactive and green for active. 
+
+```cpp
+void DrawReel2Key(bool active)
+{
+	wstring reel2Key[3] = {
+	L"┌───┐",
+	L"│ X │",
+	L"└───┘"
+	};
+
+	if (active)
+	{
+		SetConsoleTextAttribute(hconsole, 10); // Set Name Light Green
+	}
+	else
+	{
+		SetConsoleTextAttribute(hconsole, 12); // Set Lights Red
+	}
+
+	for (int i = 0; i < 3; i++)
+	{
+		short pos = 14 + i;
+		SetConsoleCursorPosition(hconsole, { 16, pos });
+		wcout << reel2Key[i];
+	}
+
+	SetConsoleTextAttribute(hconsole, DEFAULT_TEXT_COLOR); // Set Console Text Color to Default
+}
+```
+
 ### DrawReel3Key()
 
-**TODO: Can these be combined?**
+The `DrawReel3Key` function draws the reel 3 key button indication under reel 3, it is red for inactive and green for active. 
+
+```cpp
+void DrawReel3Key(bool active)
+{
+	wstring reel3Key[3] = {
+	L"┌───┐",
+	L"│ C │",
+	L"└───┘"
+	};
+
+	if (active)
+	{
+		SetConsoleTextAttribute(hconsole, 10); // Set Name Light Green
+	}
+	else
+	{
+		SetConsoleTextAttribute(hconsole, 12); // Set Lights Red
+	}
+
+	for (int i = 0; i < 3; i++)
+	{
+		short pos = 14 + i;
+		SetConsoleCursorPosition(hconsole, { 25, pos });
+		wcout << reel3Key[i];
+	}
+
+	SetConsoleTextAttribute(hconsole, DEFAULT_TEXT_COLOR); // Set Console Text Color to Default
+}
+```
 
 ### DrawDebugInfo()
 
@@ -455,6 +642,39 @@ void DrawDebugInfo()
 
 Game Print Functions
 --------------------
+
+### PrintMachineBanner(wstring message, bool isWarning)
+
+The `PrintMachineBanner` displays `message` in the fruit machine's banner on the top of the machine. If `isWarning` is `true` this message will be displayed in red, if `false` it will be displayed in green. The maximum message length is **12** characters.
+
+```cpp
+void PrintMachineBanner(wstring message, bool isWarning)
+{
+	if (message.length() <= 12) 
+	{
+		if (isWarning)
+		{
+			SetConsoleTextAttribute(hconsole, 12); // Set Lights Red
+		}
+
+		else
+		{
+			SetConsoleTextAttribute(hconsole, 10); // Set Name Light Green
+		}
+
+		SetConsoleCursorPosition(hconsole, { 13,2 });
+
+		wcout << message;
+
+		SetConsoleTextAttribute(hconsole, DEFAULT_TEXT_COLOR); // Set Console Text Color to Default
+	}
+
+	else
+	{
+		OutputDebugString("DEBUG: MachineBanner message too long");
+	}
+}
+```
 
 ### PrintReel(int reelNumber, wstring reelValue)
 
@@ -525,29 +745,32 @@ void PrintVunReel(int reel, int pos, int& reelPosStore)
 }
 ```
 
-### PrintDebugInfoMessage(wString messageLine1, wString messageLine2)
+### PrintDebugInfoMessage(wString messageLine1, wString messageLine2, wstring messageLine 3)
 
-The `PrintDebugInfoMessage` prints the game's fake debug info to the Debug Info Box to display instructions and information on the gameplay. It take in two strings and displays them on two separate lines. 
+The `PrintDebugInfoMessage` prints the game's fake debug info to the Debug Info Box to display instructions and information on the gameplay. It take in three strings and displays them on three separate lines. 
 
 ```cpp
-void PrintDebugInfoMessage(wstring messageLine1, wstring messageLine2)
+void PrintDebugInfoMessage(wstring messageLine1, wstring messageLine2, wstring messageLine3)
 {
 	SetConsoleCursorPosition(hconsole, { 43, 17 });
 	wcout << "~$ " << messageLine1;
 
 	SetConsoleCursorPosition(hconsole, { 43, 18 });
 	wcout << "~$ " << messageLine2;
+
+	SetConsoleCursorPosition(hconsole, { 43, 19 });
+	wcout << "~$ " << messageLine3;
 }
 ```
 
 ### ClearDebugInfoMessage()
 
-The `ClearDebugInfoMessage` function clears the two Debug Info Box lines by writing spaces over the who line in the box. 
+The `ClearDebugInfoMessage` function clears the three Debug Info Box lines by writing spaces over the whole lines in the box. 
 
 ```cpp
 void ClearDebugInfoMessage()
 {
-	PrintDebugInfoMessage(L"              ", L"              ");
+	PrintDebugInfoMessage(L"                           ", L"                           ", L"                           ");
 }
 ```
 
@@ -900,20 +1123,46 @@ int main()
 	int spinSpeed = START_SPIN_SPEED;
 
 	// Game Variables
-	int gameActive = true;
-	int gameState = 0;
-	int reel1StopPos = 0;
-	int reel2StopPos = 0;
-	int reel3StopPos = 0;
-	int vunReel1 = 0;
-	int vunReel2 = 0;
-	int vunReel3 = 0;
-	int data = 0;
-	int visibility = 0;
-	   
+	int gameActive = false; // Remain in game loop
+	int gameState = 0; // Store game state
+	int reel1StopPos = 0; // The position reel 1 has been stopped in
+	int reel2StopPos = 0; // The position reel 2 has been stopped in
+	int reel3StopPos = 0; // The position reel 3 has been stopped in
+	int vunReel1 = 0; // Reel 1 vulnerability position
+	int vunReel2 = 0; // Reel 2 vulnerability position
+	int vunReel3 = 0; // Reel 3 vulnerability position
+	int data = 0; // Data score
+	int visibility = 0; // Visibility Level
+	int level = 1; // Current level
+	int difficulty = 50; // Ammount Reel Spin Speed Incrases in ms.
+	
+
+
 	// Game Setup
-	srand(time(0));
+	srand(time(0)); // Use time as random number seed
 	GraphicsSetup();
+
+	// Intro
+	IntroScreen();
+
+	// Wait for user to press space to play game
+	while (!gameActive)
+	{
+		if (_kbhit())
+		{
+			int key = _getch();
+
+			if (key == PLAY_KEY)
+			{
+				gameActive = true;
+			}
+		}
+	}
+
+	system("CLS"); // Clear console screen
+
+
+	// Game
 	DrawSlotMachine();
 	DrawStatusBox();
 	DrawTargetBox();
@@ -924,8 +1173,10 @@ int main()
 	DrawReel1Key(false);
 	DrawReel2Key(false);
 	DrawReel3Key(false);
-	
+	PrintDebugInfoMessage(L"Welcome to HACK MACHINE", L"Press SPACE to spin reels", L"Press Esc to quit");
+	PrintLevelInfo(level);
 
+	// Main Game Loop
 	while (gameActive)
 	{
 		// Idle State Loop
@@ -934,7 +1185,8 @@ int main()
 			ToggleMachineName(nameStatus);
 
 			ToggleSlotMachineLights(lightStatus);
-
+			
+			// Check for user input
 			if (_kbhit())
 			{
 				int key = _getch();
@@ -959,24 +1211,31 @@ int main()
 		{
 			bool keepSpinning = true;
 
-			ClearDebugInfoMessage();
-			PrintDebugInfoMessage(L"Spinning ...");
-
 			// Vun
 			PrintVunReel(1, RandomReelPosition(REEL_LENGTH), vunReel1);
 			PrintVunReel(2, RandomReelPosition(REEL_LENGTH), vunReel2);
 			PrintVunReel(3, RandomReelPosition(REEL_LENGTH), vunReel3);
 
+			// Instructions
+			ClearDebugInfoMessage();
+			PrintDebugInfoMessage(L"HACKING!", L"Press Z, X, C to stop reels", L" ");
+
+			// Banner
+			PrintMachineBanner(L"   HACKING  ", false);
+
+			// Spinning Animation
 			while (keepSpinning)
 			{
 				for (int i = 0; i < REEL_LENGTH; i++)
 				{
+					// Reel 1
 					if (gameState == gameStates::SPIN_REELS_123)
 					{
 						PrintReel(1, REEL_VALUES[i]);
 						DrawReel1Key(true);
 					}
 
+					// Reel 2
 					if (gameState == gameStates::SPIN_REELS_123 || gameState == gameStates::SPIN_REELS_23)
 					{
 						PrintReel(2, REEL_VALUES[i]);
@@ -989,6 +1248,7 @@ int main()
 						}
 					}
 
+					// Reel 3
 					if (gameState > gameStates::IDLE && gameState <= gameStates::SPIN_REEL_3)
 					{
 						PrintReel(3, REEL_VALUES[i]);
@@ -1001,6 +1261,7 @@ int main()
 						}
 					}
 
+					// Check for user input
 					if (_kbhit())
 					{
 						int key = towupper(_getch());
@@ -1033,37 +1294,41 @@ int main()
 				}
 			}
 
-			IncreaseSpinSpeed(spinSpeed, DIFFICULTY);
+			IncreaseSpinSpeed(spinSpeed, difficulty); // Increase after each spin attempt
 
+			// Check Visctory State
 			switch (VictoryState(reel1StopPos, reel2StopPos, reel3StopPos, vunReel1, vunReel2, vunReel3))
 			{
+				// Vulnerability Exploited
 				case 1:
 					ClearDebugInfoMessage();
-					PrintDebugInfoMessage(L"You win!", L"Vun Exploited");
+					PrintDebugInfoMessage(L"ACCESS GRANTED!", L"Vulnerability Exploited!", L"12GB of data downloaded.");
 					IncreaseData(data, DATA_PRIZE_VUN);
 					ResetVisibility(visibility);
 					ResetSpinSpeed(spinSpeed);
 					break;
 
+				// 2 Reel Combo
 				case 2:
 					ClearDebugInfoMessage();
-					PrintDebugInfoMessage(L"You win!", L"2 Commands");
+					PrintDebugInfoMessage(L"ACCESS GRANTED!", L"Two Command Combo", L"3GB of data downloaded.");
 					IncreaseData(data, DATA_PRIZE_2);
-					DecreaseVisibility(visibility);
 					DecreaseSpinSpeed(spinSpeed, SPIN_SPEED_PRIZE_2);
 					break;
 
+				// 3 Reel Combo
 				case 3:
 					ClearDebugInfoMessage();
-					PrintDebugInfoMessage(L"You win!", L"3 Commands");
+					PrintDebugInfoMessage(L"ACCESS GRANTED!", L"Three Command Combo", L"9GB of data downloaded.");
 					IncreaseData(data, DATA_PRIZE_3);
 					ResetVisibility(visibility);
 					DecreaseSpinSpeed(spinSpeed, SPIN_SPEED_PRIZE_3);
 					break;
 
+				// No win condition
 				default:
 					ClearDebugInfoMessage();
-					PrintDebugInfoMessage(L"Failed!", L"Invalid Cmd");
+					PrintDebugInfoMessage(L"ACCESS DENIED!", L"Invalid Command Entered", L"Visibility Increased...");
 					IncreaseVisibility(visibility);
 					break;
 			}
@@ -1073,25 +1338,37 @@ int main()
 			{
 				PrintData(data);
 
+				// Check if Game is Over
 				if (visibility <= 10)
 				{
 					PrintVisibility(visibility);
 					gameState = gameStates::IDLE;
+
+					// Check if level increases
+					level = SelectLevel(data);
+
+					// Update Level
+					PrintLevelInfo(level);
+
+					// Set difficulty using level
+					SetDifficulty(difficulty, level);
 				}
 				else
 				{
+					// Game Over
 					gameState = gameStates::GAME_OVER;
+					ClearDebugInfoMessage();
+					PrintDebugInfoMessage(L"GAME OVER!", L"Press R to replay game", L"Press Esc to quit");
+					PrintMachineBanner(L" GAME OVER  ", true);
 				}
 			}
 
 			// Game Over State
 			while (gameState == gameStates::GAME_OVER)
 			{
-				ClearDebugInfoMessage();
-				PrintDebugInfoMessage(L"BUSTED!", L"Run Fast!");
-
 				ToggleSlotMachineLights(lightStatus);
 
+				// Check for user input
 				if (_kbhit())
 				{
 					int key = towupper(_getch());
@@ -1105,7 +1382,15 @@ int main()
 						ResetSpinSpeed(spinSpeed);
 						PrintData(data);
 						PrintVisibility(visibility);
+						PrintDebugInfoMessage(L"Welcome to HACK MACHINE", L"Press SPACE to spin reels", L"Press Esc to quit");
 						break;
+					}
+
+					// Quit Game
+					if (key == QUIT_KEY)
+					{
+						gameActive = false;
+						gameState = gameStates::QUIT;
 					}
 				}
 
@@ -1113,8 +1398,12 @@ int main()
 			}
 		}
 	}
+	
+	// Display Quit Screen
+	system("CLS"); // Clear Console 
+	QuitScreen(data);
 
-	return 0;
+	return 0; // Return zero for int main()
 }
 ```
 

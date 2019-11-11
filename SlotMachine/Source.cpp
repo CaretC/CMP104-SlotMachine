@@ -33,7 +33,6 @@ void DrawDebugInfo();
 void ToggleSlotMachineLights(bool&);
 void ToggleMachineName(bool&);
 void PrintReel(int, wstring);
-void PrintDebugInfoMessage(wstring);
 void PrintDebugInfoMessage(wstring, wstring, wstring);
 void ClearDebugInfoMessage();
 int VictoryState(int, int, int, int, int, int);
@@ -58,10 +57,6 @@ int SelectLevel(int dataScore);
 void SetDifficulty(int&, int);
 void PrintMachineBanner(wstring, bool);
 void QuitScreen(int);
-
-
-void TestPrintResults(int, int, int, int, int);
-
 
 // Globals
 // =======
@@ -123,28 +118,29 @@ int main()
 	int spinSpeed = START_SPIN_SPEED;
 
 	// Game Variables
-	int gameActive = false;
-	int gameState = 0;
-	int reel1StopPos = 0;
-	int reel2StopPos = 0;
-	int reel3StopPos = 0;
-	int vunReel1 = 0;
-	int vunReel2 = 0;
-	int vunReel3 = 0;
-	int data = 0;
-	int visibility = 0;
-	int level = 1;
+	int gameActive = false; // Remain in game loop
+	int gameState = 0; // Store game state
+	int reel1StopPos = 0; // The position reel 1 has been stopped in
+	int reel2StopPos = 0; // The position reel 2 has been stopped in
+	int reel3StopPos = 0; // The position reel 3 has been stopped in
+	int vunReel1 = 0; // Reel 1 vulnerability position
+	int vunReel2 = 0; // Reel 2 vulnerability position
+	int vunReel3 = 0; // Reel 3 vulnerability position
+	int data = 0; // Data score
+	int visibility = 0; // Visibility Level
+	int level = 1; // Current level
 	int difficulty = 50; // Ammount Reel Spin Speed Incrases in ms.
 	
 
 
 	// Game Setup
-	srand(time(0));
+	srand(time(0)); // Use time as random number seed
 	GraphicsSetup();
 
 	// Intro
 	IntroScreen();
 
+	// Wait for user to press space to play game
 	while (!gameActive)
 	{
 		if (_kbhit())
@@ -158,7 +154,7 @@ int main()
 		}
 	}
 
-	system("CLS");
+	system("CLS"); // Clear console screen
 
 
 	// Game
@@ -175,6 +171,7 @@ int main()
 	PrintDebugInfoMessage(L"Welcome to HACK MACHINE", L"Press SPACE to spin reels", L"Press Esc to quit");
 	PrintLevelInfo(level);
 
+	// Main Game Loop
 	while (gameActive)
 	{
 		// Idle State Loop
@@ -183,7 +180,8 @@ int main()
 			ToggleMachineName(nameStatus);
 
 			ToggleSlotMachineLights(lightStatus);
-					   
+			
+			// Check for user input
 			if (_kbhit())
 			{
 				int key = _getch();
@@ -258,7 +256,7 @@ int main()
 						}
 					}
 
-					// Keybaord Input Capture
+					// Check for user input
 					if (_kbhit())
 					{
 						int key = towupper(_getch());
@@ -296,6 +294,7 @@ int main()
 			// Check Visctory State
 			switch (VictoryState(reel1StopPos, reel2StopPos, reel3StopPos, vunReel1, vunReel2, vunReel3))
 			{
+				// Vulnerability Exploited
 				case 1:
 					ClearDebugInfoMessage();
 					PrintDebugInfoMessage(L"ACCESS GRANTED!", L"Vulnerability Exploited!", L"12GB of data downloaded.");
@@ -304,6 +303,7 @@ int main()
 					ResetSpinSpeed(spinSpeed);
 					break;
 
+				// 2 Reel Combo
 				case 2:
 					ClearDebugInfoMessage();
 					PrintDebugInfoMessage(L"ACCESS GRANTED!", L"Two Command Combo", L"3GB of data downloaded.");
@@ -311,6 +311,7 @@ int main()
 					DecreaseSpinSpeed(spinSpeed, SPIN_SPEED_PRIZE_2);
 					break;
 
+				// 3 Reel Combo
 				case 3:
 					ClearDebugInfoMessage();
 					PrintDebugInfoMessage(L"ACCESS GRANTED!", L"Three Command Combo", L"9GB of data downloaded.");
@@ -319,6 +320,7 @@ int main()
 					DecreaseSpinSpeed(spinSpeed, SPIN_SPEED_PRIZE_3);
 					break;
 
+				// No win condition
 				default:
 					ClearDebugInfoMessage();
 					PrintDebugInfoMessage(L"ACCESS DENIED!", L"Invalid Command Entered", L"Visibility Increased...");
@@ -361,7 +363,7 @@ int main()
 			{
 				ToggleSlotMachineLights(lightStatus);
 
-				// Keyboard Input Capture
+				// Check for user input
 				if (_kbhit())
 				{
 					int key = towupper(_getch());
@@ -393,10 +395,10 @@ int main()
 	}
 	
 	// Display Quit Screen
-	system("CLS");
+	system("CLS"); // Clear Console 
 	QuitScreen(data);
 
-	return 0;
+	return 0; // Return zero for int main()
 }
 
 // Functions
@@ -454,7 +456,6 @@ void IntroScreen()
 
 	SetConsoleTextAttribute(hconsole, DEFAULT_TEXT_COLOR); // Set Console Text Color to Default
 
-	// TODO: Finish Intro Screen, make is awesome.
 	wcout << endl;
 	wcout << endl;
 	wcout << L"  Welcome to HACK MACHINE. It may look like a simple fruit machine but behind the cover is and advanced brute-force" << endl;
@@ -480,7 +481,6 @@ void IntroScreen()
 // Print Quit Screen
 void QuitScreen(int score)
 {
-	// TODO: Finish Quit Scree, make it awesome.
 	wcout << endl;
 	wcout << endl;
 	wcout << L"            YOU ESCAPED WITH " << score << "GBs OF DATA!" << endl;
@@ -578,7 +578,6 @@ void DrawVunBox()
 	}
 }
 
-// TODO: Combine DrawReelKey into one function?
 // Draw Reel Key 1
 void DrawReel1Key(bool active) 
 {
@@ -610,7 +609,7 @@ void DrawReel1Key(bool active)
 // Draw Reel Key 2
 void DrawReel2Key(bool active)
 {
-	wstring reel1Key[3] = {
+	wstring reel2Key[3] = {
 	L"┌───┐",
 	L"│ X │",
 	L"└───┘"
@@ -629,7 +628,7 @@ void DrawReel2Key(bool active)
 	{
 		short pos = 14 + i;
 		SetConsoleCursorPosition(hconsole, { 16, pos });
-		wcout << reel1Key[i];
+		wcout << reel2Key[i];
 	}
 
 	SetConsoleTextAttribute(hconsole, DEFAULT_TEXT_COLOR); // Set Console Text Color to Default
@@ -638,7 +637,7 @@ void DrawReel2Key(bool active)
 // Draw Reel Key 3
 void DrawReel3Key(bool active)
 {
-	wstring reel1Key[3] = {
+	wstring reel3Key[3] = {
 	L"┌───┐",
 	L"│ C │",
 	L"└───┘"
@@ -657,7 +656,7 @@ void DrawReel3Key(bool active)
 	{
 		short pos = 14 + i;
 		SetConsoleCursorPosition(hconsole, { 25, pos });
-		wcout << reel1Key[i];
+		wcout << reel3Key[i];
 	}
 
 	SetConsoleTextAttribute(hconsole, DEFAULT_TEXT_COLOR); // Set Console Text Color to Default
@@ -864,14 +863,8 @@ void PrintReel(int reelNumber, wstring reelValue)
 	}
 }
 
-// TODO: Remove duplication here.
-// Print Debug Info Message
-void PrintDebugInfoMessage(wstring message) 
-{
-	SetConsoleCursorPosition(hconsole, { 43, 17 });
-	wcout << "~$ " << message;
-}
 
+// Print Debug Info Message
 void PrintDebugInfoMessage(wstring messageLine1, wstring messageLine2, wstring messageLine3)
 {
 	SetConsoleCursorPosition(hconsole, { 43, 17 });
@@ -1125,20 +1118,3 @@ int RandomReelPosition(int reelLength)
 
 	return randomPos;
 }
-
-
-
-// TODO: This is a test function remove when done
-void TestPrintResults(int reel1, int reel2, int reel3, int speed, int vis) 
-{
-	SetConsoleCursorPosition(hconsole, { 0,24 });
-
-	wcout << L"DEBUG: INFO" << endl;
-	wcout << L"Reel 1: " << REEL_VALUES[reel1] << endl;
-	wcout << L"Reel 2: " << REEL_VALUES[reel2] << endl;
-	wcout << L"Reel 3: " << REEL_VALUES[reel3] << endl;
-	wcout << "The new spin speed is: " << speed ;
-	wcout << L" Visibility: " << vis;
-}
-
-
