@@ -57,7 +57,7 @@ void PrintLevelInfo(int);
 int SelectLevel(int dataScore);
 void SetDifficulty(int&, int);
 void PrintMachineBanner(wstring, bool);
-void QuitScreen();
+void QuitScreen(int);
 
 
 void TestPrintResults(int, int, int, int, int);
@@ -392,8 +392,9 @@ int main()
 		}
 	}
 	
+	// Display Quit Screen
 	system("CLS");
-	QuitScreen();
+	QuitScreen(data);
 
 	return 0;
 }
@@ -430,15 +431,68 @@ void GraphicsSetup()
 // Print Intro Screen
 void IntroScreen()
 {
-	wcout << L"PLACE HOLDER FOR INTRO SCREEN" << endl;
-	wcout << L"PRESS SPACE TO PLAY" << endl;
+	wstring gameTitle[7] = {
+		L" #     #    #     #####  #    #          #     #    #     #####  #     # ### #     # #######",
+		L" #     #   # #   #     # #   #           ##   ##   # #   #     # #     #  #  ##    # #      ",
+		L" #     #  #   #  #       #  #            # # # #  #   #  #       #     #  #  # #   # #      ",
+		L" ####### #     # #       ###             #  #  # #     # #       #######  #  #  #  # #####  ",
+		L" #     # ####### #       #  #            #     # ####### #       #     #  #  #   # # #      ",
+		L" #     # #     # #     # #   #           #     # #     # #     # #     #  #  #    ## #      ",
+		L" #     # #     #  #####  #    #          #     # #     #  #####  #     # ### #     # #######",
+	};
+
+	// Print Title
+	SetConsoleTextAttribute(hconsole, 10); // Set Name Light Green
+
+	for(int i = 0; i < 7; i++)
+	{
+		short pos = 1 + i;
+
+		SetConsoleCursorPosition(hconsole, { 10, pos});
+		wcout << gameTitle[i];
+	}
+
+	SetConsoleTextAttribute(hconsole, DEFAULT_TEXT_COLOR); // Set Console Text Color to Default
+
+	// TODO: Finish Intro Screen, make is awesome.
+	wcout << endl;
+	wcout << endl;
+	wcout << L"  Welcome to HACK MACHINE. It may look like a simple fruit machine but behind the cover is and advanced brute-force" << endl;
+	wcout << L"  hacking device. Due to the current oppressive government policies on tech access and internet freedoms it has been" << endl;
+	wcout << L"  put together with bit of old machinery found in the abandoned ruins of the city. However, with hard times comes " << endl;
+	wcout << L"  opportunity. There is now a very lucrative market in trading old data, it has become the everyday currancy of the" << endl;
+	wcout << L"  age, and everyone is at it! So join in with your HACK MACHINE and make some cash in this post-Brexit wasteland!" << endl;
+	wcout << endl;
+	wcout << L"  To use the HACK MACHINE, use the SPACE to start the machine hacking, press Z, X and C to stop the reels. Each" << endl;
+	wcout << L"  machine has a vulnerability that can be exploidted for BIG rewards. The machine also has 2 command and 3 command" << endl;
+	wcout << L"  which yeild some data access, but no the full data dump gained from exploiting a vulnerability." << endl;
+	wcout << endl;
+	wcout << L"  However, care should be taken as the government are on the look out for hackers and each failed attempt to hack a" << endl;
+	wcout << L"  device makes you a little more visibile. However, a nifty 3 command combo or vulnerability expolit can hid you again." << endl;
+	wcout << L"  Each hack means the reels spin faster due to the machine's contruction, only data downloads can slow it down. As the " << endl;
+	wcout << L"  devices get harder to hack the amount this reel spin speed increases after each failed attempt increases. So take" << endl;
+	wcout << L"  your time and hack those machines first time." << endl;
+	wcout << endl;
+	wcout << endl;
+	wcout << L"                                             PRESS SPACE TO PLAY ... " << endl;
 }
 
 // Print Quit Screen
-void QuitScreen()
+void QuitScreen(int score)
 {
-	wcout << L"PLACE HOLDER QUIT SCREEN" << endl;
-	wcout << L"YOU HAVE QUIT" << endl;
+	// TODO: Finish Quit Scree, make it awesome.
+	wcout << endl;
+	wcout << endl;
+	wcout << L"            YOU ESCAPED WITH " << score << "GBs OF DATA!" << endl;
+	wcout << L"                    ______________" << endl;
+	wcout << L"                   |[]            |" << endl;
+	wcout << L"                   |  __________  |" << endl;
+	wcout << L"                   |  |        |  |" << endl;
+	wcout << L"                   |  |  DATA  |  |" << endl;
+	wcout << L"                   |  |________|  |" << endl;
+	wcout << L"                   |   ________   |" << endl;
+	wcout << L"                   |   [ [ ]  ]   |" << endl;
+	wcout << L"                   \\___[_[_]__]___|" << endl;
 }
 
 // Draws Slot Machine
@@ -524,6 +578,7 @@ void DrawVunBox()
 	}
 }
 
+// TODO: Combine DrawReelKey into one function?
 // Draw Reel Key 1
 void DrawReel1Key(bool active) 
 {
@@ -809,6 +864,7 @@ void PrintReel(int reelNumber, wstring reelValue)
 	}
 }
 
+// TODO: Remove duplication here.
 // Print Debug Info Message
 void PrintDebugInfoMessage(wstring message) 
 {
