@@ -6,6 +6,9 @@ Sudent # 1903399
 
 *************************************************/
 
+// TODO: It would be a cool feature to add user colour selection
+// TODO: Add a little more back story
+
 // Includes
 // ========
 
@@ -22,6 +25,8 @@ using namespace std;
 
 // Function Prototypes
 // ===================
+
+// TODO: Neaten up the order of these to match the functions section
 
 void GraphicsSetup();
 void IntroScreen();
@@ -172,6 +177,10 @@ int main()
 	DrawReel3Key(false);
 	PrintDebugInfoMessage(L"Welcome to HACK MACHINE", L"Press SPACE to spin reels", L"Press Esc to quit");
 	PrintLevelInfo(level);
+	PrintReel(1, 0); // Set Reel 1 Initial Position
+	PrintReel(2, 0); // Set Reel 2 Initial Position
+	PrintReel(3, 0); // Set Reel 3 Initial Position
+
 
 	// Main Game Loop
 	while (gameActive)
@@ -379,6 +388,8 @@ int main()
 						ResetSpinSpeed(spinSpeed);
 						PrintData(data);
 						PrintVisibility(visibility);
+						level = 1;
+						PrintLevelInfo(level);
 						PrintDebugInfoMessage(L"Welcome to HACK MACHINE", L"Press SPACE to spin reels", L"Press Esc to quit");
 						break;
 					}
@@ -405,6 +416,8 @@ int main()
 
 // Functions
 // =========
+
+// TODO: Neaten up the order of these
 
 // Set up console graphics engine for the game
 void GraphicsSetup()
@@ -580,6 +593,7 @@ void DrawVunBox()
 	}
 }
 
+// TODO: Combine these into one function for neatness
 // Draw Reel Key 1
 void DrawReel1Key(bool active) 
 {
@@ -835,39 +849,41 @@ void PrintMachineBanner(wstring message, bool isWarning)
 	}
 }
 
-// TODO: This should maybe display the value before and after the one to simulate reel
 // Print a reel
 void PrintReel(int reelNumber, int pos)
 {
+	int previousReel = PreviousReelValue(pos);
+	int nextReel = NextReelValue(pos);
+
 	if (reelNumber > 0 && reelNumber <= 3)
 	{
 		if (reelNumber == 1)
 		{
 			SetConsoleCursorPosition(hconsole, { 8,6 });
-			wcout << REEL_VALUES[PreviousReelValue(pos)];
+			wcout << REEL_VALUES[previousReel];
 			SetConsoleCursorPosition(hconsole, { 8,7 });
 			wcout << REEL_VALUES[pos];
 			SetConsoleCursorPosition(hconsole, { 8,8 });
-			wcout << REEL_VALUES[NextReelValue(pos)];
+			wcout << REEL_VALUES[nextReel];
 		}
 
 		else if (reelNumber == 2)
 		{
 			SetConsoleCursorPosition(hconsole, { 17,6 });
-			wcout << REEL_VALUES[PreviousReelValue(pos)];
+			wcout << REEL_VALUES[previousReel];
 			SetConsoleCursorPosition(hconsole, { 17,7 });
 			wcout << REEL_VALUES[pos];
 			SetConsoleCursorPosition(hconsole, { 17,8 });
-			wcout << REEL_VALUES[NextReelValue(pos)];
+			wcout << REEL_VALUES[nextReel];
 		}
 		else if (reelNumber == 3)
 		{
 			SetConsoleCursorPosition(hconsole, { 26,6 });
-			wcout << REEL_VALUES[PreviousReelValue(pos)];
+			wcout << REEL_VALUES[previousReel];
 			SetConsoleCursorPosition(hconsole, { 26,7 });
 			wcout << REEL_VALUES[pos];
 			SetConsoleCursorPosition(hconsole, { 26,8 });
-			wcout << REEL_VALUES[NextReelValue(pos)];
+			wcout << REEL_VALUES[nextReel];
 		}
 	}
 	else 
@@ -886,7 +902,7 @@ int PreviousReelValue(int currentPos)
 
 	else
 	{
-		return REEL_LENGTH;
+		return (REEL_LENGTH - 1);
 	}
 }
 
@@ -946,7 +962,7 @@ void PrintVunReel(int reel, int pos, int& rReelPosStore)
 	rReelPosStore = pos;
 }
 
-// Pint Level Info
+// Print Level Info
 void PrintLevelInfo(int levelValue)
 {
 	if (levelValue > 0 && levelValue <= 6)
@@ -964,7 +980,7 @@ void PrintLevelInfo(int levelValue)
 			L"Stating things out easy.",
 			L"Upping the stakes?",
 			L"Now the real game begins!",
-			L"Youu're no script kiddie now!",
+			L"You're no script kiddie now!",
 			L"You're aiming big now!",
 			L"AHHH! You're crazy!"
 		};
@@ -1014,9 +1030,14 @@ int SelectLevel(int dataScore)
 		return 3;
 	}
 
-	if (dataScore > 10)
+	else if (dataScore > 10)
 	{
 		return 2;
+	}
+
+	else
+	{
+		return 1;
 	}
 }
 

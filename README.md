@@ -426,7 +426,7 @@ SetConsoleCursorPosition(hconsole, {1,1});
 	wcout << L"  ║ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ║ " << endl;
 	wcout << L"  ║  ╔════════╤════════╤════════╗  ║" << endl;
 	wcout << L"  ║  ║        │        │        ║  ║" << endl;
-	wcout << L"  ║  ╟        ┼        ┼        ╢  ║" << endl;
+	wcout << L"  ║  ╟─      ─┼─      ─┼─      ─╢  ║" << endl;
 	wcout << L"  ║  ║        │        │        ║  ║" << endl;
 	wcout << L"  ║  ╚════════╧════════╧════════╝  ║" << endl;
 	wcout << L"  ║ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ║" << endl;
@@ -676,32 +676,45 @@ void PrintMachineBanner(wstring message, bool isWarning)
 }
 ```
 
-### PrintReel(int reelNumber, wstring reelValue)
+### PrintReel(int reelNumber, int pos)
 
-The `PrintReel` function prints the `reelValue` string to the reel identified by `reelNumber`. For this game it can accept `reelNumber` 0, 1 and 2. It will not accept a value out of this range as there are only 3 reels on the slot machine.
+The `PrintReel` function prints the string stored in `REEL_VALUES[pos]` to the reel identified by `reelNumber`. For this game it can accept `reelNumber` 0, 1 and 2. It will not accept a value out of this range as there are only 3 reels on the slot machine. In addition to printing the value for the reel it will also print the previous reel value above the current one and the next one below the current value to simpuate how the reels spin on a real fruit machine. If an invalid reel number is selected it will output a debug string.
 
 ```cpp
-void PrintReel(int reelNumber, wstring reelValue)
+void PrintReel(int reelNumber, int pos)
 {
+	int previousReel = PreviousReelValue(pos);
+	int nextReel = NextReelValue(pos);
+
 	if (reelNumber > 0 && reelNumber <= 3)
 	{
 		if (reelNumber == 1)
 		{
+			SetConsoleCursorPosition(hconsole, { 8,6 });
+			wcout << REEL_VALUES[previousReel];
 			SetConsoleCursorPosition(hconsole, { 8,7 });
-
-			wcout << reelValue;
+			wcout << REEL_VALUES[pos];
+			SetConsoleCursorPosition(hconsole, { 8,8 });
+			wcout << REEL_VALUES[nextReel];
 		}
+
 		else if (reelNumber == 2)
 		{
+			SetConsoleCursorPosition(hconsole, { 17,6 });
+			wcout << REEL_VALUES[previousReel];
 			SetConsoleCursorPosition(hconsole, { 17,7 });
-
-			wcout << reelValue;
+			wcout << REEL_VALUES[pos];
+			SetConsoleCursorPosition(hconsole, { 17,8 });
+			wcout << REEL_VALUES[nextReel];
 		}
 		else if (reelNumber == 3)
 		{
+			SetConsoleCursorPosition(hconsole, { 26,6 });
+			wcout << REEL_VALUES[previousReel];
 			SetConsoleCursorPosition(hconsole, { 26,7 });
-
-			wcout << reelValue;
+			wcout << REEL_VALUES[pos];
+			SetConsoleCursorPosition(hconsole, { 26,8 });
+			wcout << REEL_VALUES[nextReel];
 		}
 	}
 	else 
@@ -808,6 +821,65 @@ void PrintVisibility(int visibilityScore)
 	}
 
 	SetConsoleTextAttribute(hconsole, DEFAULT_TEXT_COLOR); // Set Console Text Color to Default
+}
+```
+
+### PrintLevelInfo(int levelValue)
+
+The `PrintLevelInfo` function takes in the current level number, if it is within the number of levels in the game, **6** levels at this time. It will display the level name 'Target' and a small description. The level names are stored in the `levelNames` array and the descriptions in the `levelDescriptions` array. The relevent level information is printed inside the *Target Box*. If a level value outside the valid level rage is input then a debug message will be printed. The possible levels are shown in the below table:
+
+| Level |   Level Name  |       Level Description       |
+|:-----:|:-------------:|:-----------------------------:|
+|   1   | Neighbour's   | Stating things out easy.      |
+|   2   | Small Office  | Upping the stakes?            |
+|   3   | Big Office    | Now the real game begins!     |
+|   4   | Small Website | You're no script kiddie now!. |
+|   5   | Large Website | You're aiming big now         |
+|   6   | Government    | AHHH! You're crazy!           |
+
+```cpp
+void PrintLevelInfo(int levelValue)
+{
+	if (levelValue > 0 && levelValue <= 6)
+	{
+		wstring levelNames[6] = {
+			L"Level 1: Neighbour's",
+			L"Level 2: Small Office",
+			L"Level 3: Big Office",
+			L"Level 4: Small Website",
+			L"Level 5: Large Website",
+			L"Level 6: Government"
+		};
+
+		wstring levelDescriptions[6] = {
+			L"Stating things out easy.",
+			L"Upping the stakes?",
+			L"Now the real game begins!",
+			L"You're no script kiddie now!",
+			L"You're aiming big now!",
+			L"AHHH! You're crazy!"
+		};
+
+
+		// Print Level Name
+		SetConsoleCursorPosition(hconsole, { 51 , 1 });
+		wcout << L"                        ";
+
+		SetConsoleCursorPosition(hconsole, { 51 , 1 });
+		wcout << levelNames[(levelValue - 1)];
+
+		// Print Level Description
+		SetConsoleCursorPosition(hconsole, { 42 , 3 });
+		wcout << L"                                ";
+
+		SetConsoleCursorPosition(hconsole, { 42 , 3 });
+		wcout << levelDescriptions[(levelValue -1)];
+	}
+
+	else 
+	{
+		OutputDebugString("DEBUG: Invalid Level Selected");
+	}	
 }
 ```
 
@@ -1110,7 +1182,101 @@ int RandomReelPosition(int reelLength)
 }
 ```
 
-**TODO: Levels Functions**
+### SelectLevel(int dataScore)
+
+The `SelectLevel` function returns an integer based on the input parameter `dataScore`. The game starts on level **1** and progresses as indicated in the below table:
+
+| Level |    Data Score  |
+|:-----:|:--------------:|
+|   1   |      0 - 9     |
+|   2   |     10 - 24    |
+|   3   |     24 - 39    |
+|   4   |     40 - 54    |
+|   5   |     55 - 69    |
+|   6   |   70 or more   |
+
+```cpp
+int SelectLevel(int dataScore) 
+{
+	if (dataScore > 70)
+	{
+		return 6;
+	}
+
+	else if (dataScore > 55)
+	{
+		return 5;
+	}
+
+	else if (dataScore > 40)
+	{
+		return 4;
+	}
+
+	else if (dataScore > 25)
+	{
+		return 3;
+	}
+
+	else if (dataScore > 10)
+	{
+		return 2;
+	}
+
+	else
+	{
+		return 1;
+	}
+}
+```
+
+### SetDifficulty(int& rDifficulty, int level)
+
+The `SetDifficulty` function sets the 'difficulty' of the game. In this game the difficulty refers to the ammount the spin speed will increase after each failed spin attempt in *ms*. It is calcuated using a very simple formula in the function shown in code snippet below:
+
+```cpp
+void SetDifficulty(int& rDifficulty, int level)
+{
+	rDifficulty = 50 * level;
+}
+```
+
+### PreviousReelValue(int currentPos)
+
+The `PreviousReelValue` function takes in the `currentPos` of the reel and displays the previous value in the reel, it will loop round the reel to do this after the position of **0**. 
+
+```cpp
+int PreviousReelValue(int currentPos)
+{
+	if ((currentPos - 1) >= 0)
+	{
+		return (currentPos - 1);
+	}
+
+	else
+	{
+		return (REEL_LENGTH - 1);
+	}
+}
+```
+
+### NextReelValue(int currentPos)
+
+The `NextReelValue` function takes in the `currentPos` of the reel and displays the next value in the reel, it will loop round the reel to do this after the position of `REEL_LENGTH - 1`. 
+
+```cpp
+{
+	if ((currentPos + 1) < REEL_LENGTH)
+	{
+		return (currentPos + 1);
+	}
+
+	else
+	{
+		return 0;
+	}
+}
+```
 
 Main Function
 -------------
