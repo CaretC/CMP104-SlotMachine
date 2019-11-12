@@ -716,7 +716,7 @@ void PrintReel(int reelNumber, wstring reelValue)
 THe `PrintVunReel` function prints the value of the `REEL_VALUES` at index `pos` to the box for `reel`. It then saves the index of pos to `reelPosStore` so it can be used to work out if the reels match. 
 
 ```cpp
-void PrintVunReel(int reel, int pos, int& reelPosStore)
+void PrintVunReel(int reel, int pos, int& rReelPosStore)
 {
 	switch (reel)
 	{
@@ -741,7 +741,7 @@ void PrintVunReel(int reel, int pos, int& reelPosStore)
 	wcout << REEL_VALUES[pos];
 
 	// Store
-	reelPosStore = pos;
+	rReelPosStore = pos;
 }
 ```
 
@@ -814,10 +814,10 @@ void PrintVisibility(int visibilityScore)
 Game Animation Functions
 ------------------------
 
-### ToogleSlotMachineLights(bool& status)
+### ToogleSlotMachineLights(bool& rStatus)
 
 ```cpp
-void ToggleSlotMachineLights(bool &status)
+void ToggleSlotMachineLights(bool& rStatus)
 {
 
 	if (status)
@@ -883,16 +883,16 @@ void ToggleSlotMachineLights(bool &status)
 }
 ```
 
-The `ToggleSlotMachineLights` toggles the slot machine's lights animation depending on if the status is `true` or `false`. It then toggles `status` to swap animation each time it is called. Below shows the lighs in on and off states.
+The `ToggleSlotMachineLights` toggles the slot machine's lights animation depending on if the status is `true` or `false`. It then toggles `rStatus` to swap animation each time it is called. Below shows the lighs in on and off states.
 
 ![Lights On](readmeImages/LightsActive.PNG)
 
 ![Lights Off](readmeImages/LighsInactive.PNG)
 
-### ToggleMachineName(bool& status)
+### ToggleMachineName(bool& rStatus)
 
 ```cpp
-if (status)
+if (rStatus)
 	{	
 		SetConsoleCursorPosition(hconsole, { 13,2 });
 
@@ -984,114 +984,114 @@ int VictoryState(int reel1, int reel2, int reel3, int vun1, int vun2, int vun3)
 }
 ```
 
-### IncreaseVisibility(int& vis)
+### IncreaseVisibility(int& rVis)
 
-The `IncreaseVisibility` function increases the value of `vis` **1** until a value of **10** it will not increase the value higher then **10** wich is the maximum visibility value that can be displayed in Status Box visibility bar.
+The `IncreaseVisibility` function increases the value of `rVis` **1** until a value of **10** it will not increase the value higher then **10** wich is the maximum visibility value that can be displayed in Status Box visibility bar.
 
 ```cpp
-void IncreaseVisibility(int& vis) 
+void IncreaseVisibility(int& rVis) 
 {
-	if (vis <= 10) 
+	if (rVis <= 10) 
 	{
-		vis ++;
+		rVis ++;
 	}
 }
 ```
 
-### DecreaseVisibility(int& vis)
+### DecreaseVisibility(int& rVis)
 
-The `DecreaseVisibility` function will decrease the value of `vis` by **1** but it will not decrease the value below **0**.
+The `DecreaseVisibility` function will decrease the value of `rVis` by **1** but it will not decrease the value below **0**.
 
 ```cpp
-void DecreaseVisibility(int& vis)
+void DecreaseVisibility(int& rVis)
 {
-	if (vis > 0)
+	if (rVis > 0)
 	{
-		vis--;
+		rVis--;
 	}
 }
 ```
 
-### ResetVisibility(int& vis)
+### ResetVisibility(int& rVis)
 
 The `ResetVisibility` function resets the value of the visibility back to its start of game value, by default this is **0**.
 
 ```cpp
-void ResetVisibility(int& vis)
+void ResetVisibility(int& rVis)
 {
-	vis = 0;
+	rVis = 0;
 }
 ```
 
-### IncreaseData(int& data, int ammount)
+### IncreaseData(int& rData, int ammount)
 
-The `IncreaseData` increases the `data` variable by `ammount`.
+The `IncreaseData` increases the `rData` variable by `ammount`.
 
 ```cpp
-void IncreaseData(int& data, int ammount)
+void IncreaseData(int& rData, int ammount)
 {
-	data += ammount;
+	rData += ammount;
 }
 ```
 
-### DecreaseData(int& data, int ammount)
+### DecreaseData(int& rData, int ammount)
 
-The `DecreaeData` decreases the `data` variable by `ammount`. By will not reduce the score below **0**.
+The `DecreaeData` decreases the `rData` variable by `ammount`. By will not reduce the score below **0**.
 
 ```cpp
-void DecreaseData(int& data, int ammount)
+void DecreaseData(int& rData, int ammount)
 {
-	if ((data - ammount) >= 0)
+	if ((rData - ammount) >= 0)
 	{
-		data -= ammount;
+		rData -= ammount;
 	}
 }
 ```
 
-### ResetData(int& data)
+### ResetData(int& rData)
 
 The `ResetData` function resets the data to its start value.
 
 ```cpp
-void ResetData(int& data)
+void ResetData(int& rData)
 {
-	data = 0;
+	rData = 0;
 }
 ```
 
-### IncreaseSpinSpeed(int& spinSpeed, int ammount)
+### IncreaseSpinSpeed(int& rSpinSpeed, int ammount)
 
-The `IncreaseSpinSpeed` function increases the `spinSpeed` value by `ammount`, as the spin speed is the delay between printing each value in the reel this delay is reduced to increase the spin speed of reels. This value will be reduced to a miniumum value of **0**ms. 
+The `IncreaseSpinSpeed` function increases the `rSpinSpeed` value by `ammount`, as the spin speed is the delay between printing each value in the reel this delay is reduced to increase the spin speed of reels. This value will be reduced to a miniumum value of **0**ms. 
 
 ```cpp
-void IncreaseSpinSpeed(int& spinSpeed, int ammount)
+void IncreaseSpinSpeed(int& rSpinSpeed, int ammount)
 {
-	if ((spinSpeed - ammount) >= 0)
+	if ((rSpinSpeed - ammount) >= 0)
 	{
-		spinSpeed -= ammount;
+		rSpinSpeed -= ammount;
 	}
 }
 ```
 
-### DecreaseSpinSpeed(int& spinSpeed, int ammount)
+### DecreaseSpinSpeed(int& rSpinSpeed, int ammount)
 
-The `DecreaseSpinSpeed` function deacreases the `spinSpeed` by `ammount` ms, to decrease the spin speed the delay is increased.
+The `DecreaseSpinSpeed` function deacreases the `rSpinSpeed` by `ammount` ms, to decrease the spin speed the delay is increased.
 
 ```cpp
-void DecreaseSpinSpeed(int& spinSpeed, int ammount)
+void DecreaseSpinSpeed(int& rSpinSpeed, int ammount)
 {
-	spinSpeed += ammount;
+	rSpinSpeed += ammount;
 }
 ```
 
-### ResetSpinSpeed(int& spinSpeed)
+### ResetSpinSpeed(int& rSpinSpeed)
 
-The `ResetSpinSpeed` function resets the `spinSpeed` to its starting value `START_SPIN_SPEED` which by defualt is **500**ms.
+The `ResetSpinSpeed` function resets the `rSpinSpeed` to its starting value `START_SPIN_SPEED` which by defualt is **500**ms.
 
 ```cpp
-void ResetSpinSpeed(int& spinSpeed)
+void ResetSpinSpeed(int& rSpinSpeed)
 {
-	spinSpeed = START_SPIN_SPEED;
+	rSpinSpeed = START_SPIN_SPEED;
 }
 ```
 

@@ -689,10 +689,10 @@ void DrawDebugInfo()
 }
 
 // Toggle Slot Machine Lights
-void ToggleSlotMachineLights(bool &status)
+void ToggleSlotMachineLights(bool& rStatus)
 {
 
-	if (status)
+	if (rStatus)
 	{
 		SetConsoleTextAttribute(hconsole, 12); // Set Lights Red
 
@@ -722,7 +722,7 @@ void ToggleSlotMachineLights(bool &status)
 
 		SetConsoleTextAttribute(hconsole, DEFAULT_TEXT_COLOR); // Set Console Text Color to Default
 
-		status = false;
+		rStatus = false;
 	}
 	else
 	{
@@ -750,14 +750,14 @@ void ToggleSlotMachineLights(bool &status)
 		SetConsoleCursorPosition(hconsole, { 34,2 });
 		wcout << " ";
 
-		status = true;
+		rStatus = true;
 	}
 }
 
 // Cycle through colors for machine name
-void ToggleMachineName(bool& status)
+void ToggleMachineName(bool& rStatus)
 {
-	if (status)
+	if (rStatus)
 	{	
 		SetConsoleCursorPosition(hconsole, { 13,2 });
 
@@ -777,7 +777,7 @@ void ToggleMachineName(bool& status)
 
 		SetConsoleTextAttribute(hconsole, DEFAULT_TEXT_COLOR); // Set Console Text Color to Default
 
-		status = false;
+		rStatus = false;
 	}
 	else
 	{
@@ -799,7 +799,7 @@ void ToggleMachineName(bool& status)
 
 		SetConsoleTextAttribute(hconsole, DEFAULT_TEXT_COLOR); // Set Console Text Color to Default
 
-		status = true;
+		rStatus = true;
 	}
 
 	
@@ -878,7 +878,7 @@ void PrintDebugInfoMessage(wstring messageLine1, wstring messageLine2, wstring m
 }
 
 // Print Vun Reel
-void PrintVunReel(int reel, int pos, int& reelPosStore)
+void PrintVunReel(int reel, int pos, int& rReelPosStore)
 {
 	switch (reel)
 	{
@@ -903,7 +903,7 @@ void PrintVunReel(int reel, int pos, int& reelPosStore)
 	wcout << REEL_VALUES[pos];
 
 	// Store
-	reelPosStore = pos;
+	rReelPosStore = pos;
 }
 
 // Pint Level Info
@@ -981,9 +981,9 @@ int SelectLevel(int dataScore)
 }
 
 // Set difficulty
-void SetDifficulty(int& difficulty, int level)
+void SetDifficulty(int& rDifficulty, int level)
 {
-	difficulty = 50 * level;
+	rDifficulty = 50 * level;
 }
 
 // Clear Debug Info Message
@@ -1044,69 +1044,69 @@ void PrintVisibility(int visibilityScore)
 }
 
 // Increase Visibility
-void IncreaseVisibility(int& vis) 
+void IncreaseVisibility(int& rVis) 
 {
-	if (vis <= 10) 
+	if (rVis <= 10) 
 	{
-		vis ++;
+		rVis ++;
 	}
 }
 
 // Decrease Visibility
-void DecreaseVisibility(int& vis)
+void DecreaseVisibility(int& rVis)
 {
-	if (vis > 0)
+	if (rVis > 0)
 	{
-		vis--;
+		rVis--;
 	}
 }
 
 // Reset Visibility
-void ResetVisibility(int& vis)
+void ResetVisibility(int& rVis)
 {
-	vis = 0;
+	rVis = 0;
 }
 
 // Increase Score
-void IncreaseData(int& data, int ammount)
+void IncreaseData(int& rData, int ammount)
 {
-	data += ammount;
+	rData += ammount;
 }
 
 // Decrease Score
-void DecreaseData(int& data, int ammount)
+void DecreaseData(int& rData, int ammount)
 {
-	if ((data - ammount) >= 0)
+	if ((rData - ammount) >= 0)
 	{
-		data -= ammount;
+		rData -= ammount;
 	}
 }
 
 // Reset Score
-void ResetData(int& data)
+void ResetData(int& rData)
 {
-	data = 0;
+	rData = 0;
 }
 
 // Increase Spin Speed
-void IncreaseSpinSpeed(int& spinSpeed, int ammount)
+void IncreaseSpinSpeed(int& rSpinSpeed, int ammount)
 {
-	if ((spinSpeed - ammount) >= 0)
+	if ((rSpinSpeed - ammount) >= 0)
 	{
-		spinSpeed -= ammount;
+		rSpinSpeed -= ammount;
 	}
 }
 
 // Decrease Spin Speed
-void DecreaseSpinSpeed(int& spinSpeed, int ammount)
+void DecreaseSpinSpeed(int& rSpinSpeed, int ammount)
 {
-	spinSpeed += ammount;
+	rSpinSpeed += ammount;
 }
 
 // Reset Spin Speed
-void ResetSpinSpeed(int& spinSpeed)
+void ResetSpinSpeed(int& rSpinSpeed)
 {
-	spinSpeed = START_SPIN_SPEED;
+	rSpinSpeed = START_SPIN_SPEED;
 }
 
 // RandomReelPos
