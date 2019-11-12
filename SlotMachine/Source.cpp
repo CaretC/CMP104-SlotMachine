@@ -833,6 +833,7 @@ void PrintMachineBanner(wstring message, bool isWarning)
 	}
 }
 
+// TODO: This should maybe display the value before and after the one to simulate reel
 // Print a reel
 void PrintReel(int reelNumber, wstring reelValue)
 {
@@ -862,7 +863,6 @@ void PrintReel(int reelNumber, wstring reelValue)
 		OutputDebugString("DEBUG: reelNumberValue out of range. It must be between 1-3.");
 	}
 }
-
 
 // Print Debug Info Message
 void PrintDebugInfoMessage(wstring messageLine1, wstring messageLine2, wstring messageLine3)

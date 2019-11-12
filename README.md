@@ -1110,8 +1110,12 @@ int RandomReelPosition(int reelLength)
 }
 ```
 
+**TODO: Levels Functions**
+
 Main Function
 -------------
+
+**TODO: Add main function description**
 
 ```cpp
 int main()
