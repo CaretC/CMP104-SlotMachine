@@ -32,7 +32,9 @@ void DrawVunBox();
 void DrawDebugInfo();
 void ToggleSlotMachineLights(bool&);
 void ToggleMachineName(bool&);
-void PrintReel(int, wstring);
+void PrintReel(int, int);
+int PreviousReelValue(int);
+int NextReelValue(int);
 void PrintDebugInfoMessage(wstring, wstring, wstring);
 void ClearDebugInfoMessage();
 int VictoryState(int, int, int, int, int, int);
@@ -226,14 +228,14 @@ int main()
 					// Reel 1
 					if (gameState == gameStates::SPIN_REELS_123)
 					{
-						PrintReel(1, REEL_VALUES[i]);
+						PrintReel(1, i);
 						DrawReel1Key(true);
 					}
 
 					// Reel 2
 					if (gameState == gameStates::SPIN_REELS_123 || gameState == gameStates::SPIN_REELS_23)
 					{
-						PrintReel(2, REEL_VALUES[i]);
+						PrintReel(2, i);
 
 						if(gameState == gameStates::SPIN_REELS_23)
 						{
@@ -246,7 +248,7 @@ int main()
 					// Reel 3
 					if (gameState > gameStates::IDLE && gameState <= gameStates::SPIN_REEL_3)
 					{
-						PrintReel(3, REEL_VALUES[i]);
+						PrintReel(3, i);
 
 						if (gameState == gameStates::SPIN_REEL_3)
 						{
@@ -506,7 +508,7 @@ void DrawSlotMachine()
 	wcout << L"  ║ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ║ " << endl;
 	wcout << L"  ║  ╔════════╤════════╤════════╗  ║" << endl;
 	wcout << L"  ║  ║        │        │        ║  ║" << endl;
-	wcout << L"  ║  ╟        ┼        ┼        ╢  ║" << endl;
+	wcout << L"  ║  ╟─      ─┼─      ─┼─      ─╢  ║" << endl;
 	wcout << L"  ║  ║        │        │        ║  ║" << endl;
 	wcout << L"  ║  ╚════════╧════════╧════════╝  ║" << endl;
 	wcout << L"  ║ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ║" << endl;
@@ -835,32 +837,70 @@ void PrintMachineBanner(wstring message, bool isWarning)
 
 // TODO: This should maybe display the value before and after the one to simulate reel
 // Print a reel
-void PrintReel(int reelNumber, wstring reelValue)
+void PrintReel(int reelNumber, int pos)
 {
 	if (reelNumber > 0 && reelNumber <= 3)
 	{
 		if (reelNumber == 1)
 		{
+			SetConsoleCursorPosition(hconsole, { 8,6 });
+			wcout << REEL_VALUES[PreviousReelValue(pos)];
 			SetConsoleCursorPosition(hconsole, { 8,7 });
-
-			wcout << reelValue;
+			wcout << REEL_VALUES[pos];
+			SetConsoleCursorPosition(hconsole, { 8,8 });
+			wcout << REEL_VALUES[NextReelValue(pos)];
 		}
+
 		else if (reelNumber == 2)
 		{
+			SetConsoleCursorPosition(hconsole, { 17,6 });
+			wcout << REEL_VALUES[PreviousReelValue(pos)];
 			SetConsoleCursorPosition(hconsole, { 17,7 });
-
-			wcout << reelValue;
+			wcout << REEL_VALUES[pos];
+			SetConsoleCursorPosition(hconsole, { 17,8 });
+			wcout << REEL_VALUES[NextReelValue(pos)];
 		}
 		else if (reelNumber == 3)
 		{
+			SetConsoleCursorPosition(hconsole, { 26,6 });
+			wcout << REEL_VALUES[PreviousReelValue(pos)];
 			SetConsoleCursorPosition(hconsole, { 26,7 });
-
-			wcout << reelValue;
+			wcout << REEL_VALUES[pos];
+			SetConsoleCursorPosition(hconsole, { 26,8 });
+			wcout << REEL_VALUES[NextReelValue(pos)];
 		}
 	}
 	else 
 	{
 		OutputDebugString("DEBUG: reelNumberValue out of range. It must be between 1-3.");
+	}
+}
+
+// Returns the previous reel value
+int PreviousReelValue(int currentPos)
+{
+	if ((currentPos - 1) >= 0)
+	{
+		return (currentPos - 1);
+	}
+
+	else
+	{
+		return REEL_LENGTH;
+	}
+}
+
+// Returns the next reel value
+int NextReelValue(int currentPos)
+{
+	if ((currentPos + 1) < REEL_LENGTH)
+	{
+		return (currentPos + 1);
+	}
+
+	else
+	{
+		return 0;
 	}
 }
 
