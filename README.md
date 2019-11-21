@@ -509,10 +509,34 @@ void DrawVunBox()
 	}
 }
 ```
+### DrawReelKey(int reel, bool active)
 
-### DrawReel1Key()
+The `DrawReelKey` function takes in *reel* and *active*. If the value of *reel* is a valid reel number the reel key for that reel will be set to *active*. If an invalid reel number is provided a debug mesage will be printed.
 
-The `DrawReel1Key` function draws the reel 1 key button indication under reel 1, it is red for inactive and green for active. 
+```cpp
+void DrawReelKey(int reel, bool active)
+{
+	switch (reel)
+	{
+		case 1:
+			DrawReel1Key(active);
+			break;
+		case 2:
+			DrawReel2Key(active);
+			break;
+		case 3:
+			DrawReel3Key(active);
+			break;
+		default:
+			OutputDebugString("DEBUG: Invalid reel number selected.");
+			break;
+	}
+}
+```
+
+### DrawReel1Key(bool active)
+
+The `DrawReel1Key` function draws the reel 1 key button indication under reel 1, it is red for inactive and green for active. Use by the `DrawReelKey` function.
 
 ```cpp
 void DrawReel1Key(bool active) 
@@ -543,9 +567,9 @@ void DrawReel1Key(bool active)
 }
 
 ```
-### DrawReel2Key()
+### DrawReel2Key(bool active)
 
-The `DrawReel2Key` function draws the reel 2 key button indication under reel 2, it is red for inactive and green for active. 
+The `DrawReel2Key` function draws the reel 2 key button indication under reel 2, it is red for inactive and green for active. Use by the `DrawReelKey` function.
 
 ```cpp
 void DrawReel2Key(bool active)
@@ -576,9 +600,9 @@ void DrawReel2Key(bool active)
 }
 ```
 
-### DrawReel3Key()
+### DrawReel3Key(bool active)
 
-The `DrawReel3Key` function draws the reel 3 key button indication under reel 3, it is red for inactive and green for active. 
+The `DrawReel3Key` function draws the reel 3 key button indication under reel 3, it is red for inactive and green for active. Use by the `DrawReelKey` function.
 
 ```cpp
 void DrawReel3Key(bool active)
@@ -1281,7 +1305,10 @@ The `NextReelValue` function takes in the `currentPos` of the reel and displays 
 Main Function
 -------------
 
-**TODO: Add main function description**
+The `main` function holds the main game loop and handles the main game flow. The below game flow is shown below flow diagram:
+
+![Main Game Flow](readmeImages/MainGameFlow.PNG)
+
 
 ```cpp
 int main()
@@ -1345,6 +1372,10 @@ int main()
 	DrawReel3Key(false);
 	PrintDebugInfoMessage(L"Welcome to HACK MACHINE", L"Press SPACE to spin reels", L"Press Esc to quit");
 	PrintLevelInfo(level);
+	PrintReel(1, 0); // Set Reel 1 Initial Position
+	PrintReel(2, 0); // Set Reel 2 Initial Position
+	PrintReel(3, 0); // Set Reel 3 Initial Position
+
 
 	// Main Game Loop
 	while (gameActive)
@@ -1401,33 +1432,33 @@ int main()
 					// Reel 1
 					if (gameState == gameStates::SPIN_REELS_123)
 					{
-						PrintReel(1, REEL_VALUES[i]);
-						DrawReel1Key(true);
+						PrintReel(1, i);
+						DrawReelKey(1, true);
 					}
 
 					// Reel 2
 					if (gameState == gameStates::SPIN_REELS_123 || gameState == gameStates::SPIN_REELS_23)
 					{
-						PrintReel(2, REEL_VALUES[i]);
+						PrintReel(2, i);
 
 						if(gameState == gameStates::SPIN_REELS_23)
 						{
-							DrawReel1Key(false);
-							DrawReel2Key(true);
-							DrawReel3Key(false);
+							DrawReelKey(1, false);
+							DrawReelKey(2, true);
+							DrawReelKey(3, false);
 						}
 					}
 
 					// Reel 3
 					if (gameState > gameStates::IDLE && gameState <= gameStates::SPIN_REEL_3)
 					{
-						PrintReel(3, REEL_VALUES[i]);
+						PrintReel(3, i);
 
 						if (gameState == gameStates::SPIN_REEL_3)
 						{
-							DrawReel1Key(false);
-							DrawReel2Key(false);
-							DrawReel3Key(true);
+							DrawReelKey(1, false);
+							DrawReelKey(2, false);
+							DrawReelKey(3, true);
 						}
 					}
 
@@ -1455,7 +1486,7 @@ int main()
 							keepSpinning = false;
 							reel3StopPos = i;
 							gameState = gameStates::ALL_REELS_STOPPED;
-							DrawReel3Key(false);
+							DrawReelKey(3, false);
 							break;
 						}
 					}
@@ -1552,6 +1583,8 @@ int main()
 						ResetSpinSpeed(spinSpeed);
 						PrintData(data);
 						PrintVisibility(visibility);
+						level = 1;
+						PrintLevelInfo(level);
 						PrintDebugInfoMessage(L"Welcome to HACK MACHINE", L"Press SPACE to spin reels", L"Press Esc to quit");
 						break;
 					}

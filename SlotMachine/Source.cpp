@@ -13,7 +13,7 @@ Sudent # 1903399
 // ========
 
 #include <iostream> // For Console i/o
-#include <fcntl.h> // To set 16 encoding
+#include <fcntl.h> // To set 16-bit character encoding
 #include <io.h> // Used to get _setmode()
 #include <stdio.h> // Used with above.
 #include <conio.h> // For reading key presses
@@ -54,6 +54,7 @@ void ResetData(int&);
 void IncreaseSpinSpeed(int&, int);
 void DecreaseSpinSpeed(int&, int);
 void ResetSpinSpeed(int&);
+void DrawReelKey(int, bool);
 void DrawReel1Key(bool);
 void DrawReel2Key(bool);
 void DrawReel3Key(bool);
@@ -238,7 +239,7 @@ int main()
 					if (gameState == gameStates::SPIN_REELS_123)
 					{
 						PrintReel(1, i);
-						DrawReel1Key(true);
+						DrawReelKey(1, true);
 					}
 
 					// Reel 2
@@ -248,9 +249,9 @@ int main()
 
 						if(gameState == gameStates::SPIN_REELS_23)
 						{
-							DrawReel1Key(false);
-							DrawReel2Key(true);
-							DrawReel3Key(false);
+							DrawReelKey(1, false);
+							DrawReelKey(2, true);
+							DrawReelKey(3, false);
 						}
 					}
 
@@ -261,9 +262,9 @@ int main()
 
 						if (gameState == gameStates::SPIN_REEL_3)
 						{
-							DrawReel1Key(false);
-							DrawReel2Key(false);
-							DrawReel3Key(true);
+							DrawReelKey(1, false);
+							DrawReelKey(2, false);
+							DrawReelKey(3, true);
 						}
 					}
 
@@ -291,7 +292,7 @@ int main()
 							keepSpinning = false;
 							reel3StopPos = i;
 							gameState = gameStates::ALL_REELS_STOPPED;
-							DrawReel3Key(false);
+							DrawReelKey(3, false);
 							break;
 						}
 					}
@@ -593,7 +594,26 @@ void DrawVunBox()
 	}
 }
 
-// TODO: Combine these into one function for neatness
+// Draws Reel Key
+void DrawReelKey(int reel, bool active)
+{
+	switch (reel)
+	{
+		case 1:
+			DrawReel1Key(active);
+			break;
+		case 2:
+			DrawReel2Key(active);
+			break;
+		case 3:
+			DrawReel3Key(active);
+			break;
+		default:
+			OutputDebugString("DEBUG: Invalid reel number selected.");
+			break;
+	}
+}
+
 // Draw Reel Key 1
 void DrawReel1Key(bool active) 
 {
