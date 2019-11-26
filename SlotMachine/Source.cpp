@@ -1,8 +1,8 @@
 ﻿/************************************************
 Fruit machine game made for CMP104 assessment. 
 
-Aurthor: Joseph Lee
-Sudent # 1903399
+Author: Joseph Lee
+Student # 1903399
 Date: 26/11/2019
 *************************************************/
 
