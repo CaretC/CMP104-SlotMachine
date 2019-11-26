@@ -1,12 +1,10 @@
 ﻿/************************************************
-Slot machine made for CMP104 assessment. 
+Fruit machine game made for CMP104 assessment. 
 
 Aurthor: Joseph Lee
 Sudent # 1903399
-
+Date: 26/11/2019
 *************************************************/
-
-// TODO: Add a little more back story
 
 // Includes
 // ========
@@ -16,7 +14,7 @@ Sudent # 1903399
 #include <io.h> // Used to get _setmode()
 #include <stdio.h> // Used with above.
 #include <conio.h> // For reading key presses
-#include <Windows.h> // To get access to console screen buffer etc.
+#include <Windows.h> // To get access to console screen functionality (e.g buffer)
 #include <cstdlib> // Used for Random Number Generation
 #include <ctime> // Date and time info (Used as random Number Seed)
 
@@ -24,26 +22,40 @@ using namespace std;
 
 // Function Prototypes
 // ===================
-
-// TODO: Neaten up the order of these to match the functions section
-
+// Game Drawing
+// ------------
 void GraphicsSetup();
 void IntroScreen();
+void QuitScreen(int);
 void DrawSlotMachine();
 void DrawStatusBox();
 void DrawTargetBox();
 void DrawVunBox();
+void DrawReelKey(int, bool);
+void DrawReel1Key(bool);
+void DrawReel2Key(bool);
+void DrawReel3Key(bool);
 void DrawDebugInfo();
-void ToggleSlotMachineLights(bool&);
-void ToggleMachineName(bool&);
+
+// Game Print
+// ----------
+void PrintMachineBanner(wstring, bool);
 void PrintReel(int, int);
-int PreviousReelValue(int);
-int NextReelValue(int);
+void PrintVunReel(int, int, int&);
 void PrintDebugInfoMessage(wstring, wstring, wstring);
 void ClearDebugInfoMessage();
-int VictoryState(int, int, int, int, int, int);
 void PrintData(int);
 void PrintVisibility(int);
+void PrintLevelInfo(int);
+
+// Game Animation
+// --------------
+void ToggleSlotMachineLights(bool&);
+void ToggleMachineName(bool&);
+
+// Game Mechanics
+// --------------
+int VictoryState(int, int, int, int, int, int);
 void IncreaseVisibility(int&);
 void DecreaseVisibility(int&);
 void ResetVisibility(int&);
@@ -53,27 +65,22 @@ void ResetData(int&);
 void IncreaseSpinSpeed(int&, int);
 void DecreaseSpinSpeed(int&, int);
 void ResetSpinSpeed(int&);
-void DrawReelKey(int, bool);
-void DrawReel1Key(bool);
-void DrawReel2Key(bool);
-void DrawReel3Key(bool);
 int RandomReelPosition(int);
-void PrintVunReel(int, int, int&);
-void PrintLevelInfo(int);
 int SelectLevel(int dataScore);
 void SetDifficulty(int&, int);
-void PrintMachineBanner(wstring, bool);
-void QuitScreen(int);
+int PreviousReelValue(int);
+int NextReelValue(int);
 
 // Globals
 // =======
-
 // Console Globals
+// ---------------
 CONSOLE_CURSOR_INFO cursor_info;
 HANDLE hconsole;
 const int DEFAULT_TEXT_COLOR = 7; // Default Console Text Colour;
 
 // Game Consts
+// -----------
 const int DATA_PRIZE_2 = 3; // Data Prize For 2 Reels
 const int DATA_PRIZE_3 = 9; // Data Prize For 3 Reels
 const int DATA_PRIZE_VUN = 12; // Data Prize Vun
@@ -91,6 +98,7 @@ const enum gameStates {
 };
 
 // Game Controls
+// -------------
 const char REEL1_KEY = 'Z';
 const char REEL2_KEY = 'X';
 const char REEL3_KEY = 'C';
@@ -99,6 +107,7 @@ const char PLAY_KEY = ' ';
 const char QUIT_KEY = 27; // Esc Key.
 
 // Reels
+// -----
 const int REEL_LENGTH = 9;
 const wstring REEL_VALUES[REEL_LENGTH] = { 
 	L"cd  ",
@@ -115,7 +124,6 @@ const wstring REEL_VALUES[REEL_LENGTH] = {
 
 // Main Game
 // =========
-
 int main()
 {
 	// Animation Variables
@@ -416,8 +424,8 @@ int main()
 
 // Functions
 // =========
-
-// TODO: Neaten up the order of these
+// Game Drawing
+// ------------
 
 // Set up console graphics engine for the game
 void GraphicsSetup()
@@ -508,6 +516,9 @@ void QuitScreen(int score)
 	wcout << L"                   |   ________   |" << endl;
 	wcout << L"                   |   [ [ ]  ]   |" << endl;
 	wcout << L"                   \\___[_[_]__]___|" << endl;
+
+	// Pause window from closing so final screen remains displayed
+	system("pause"); 
 }
 
 // Draws Slot Machine
@@ -723,122 +734,8 @@ void DrawDebugInfo()
 	}
 }
 
-// Toggle Slot Machine Lights
-void ToggleSlotMachineLights(bool& rStatus)
-{
-
-	if (rStatus)
-	{
-		SetConsoleTextAttribute(hconsole, 12); // Set Lights Red
-
-		// Light 1 top
-		SetConsoleCursorPosition(hconsole, { 4, 1 });
-		wcout << "\\|/";
-
-		// Light 1 Left
-		SetConsoleCursorPosition(hconsole, { 3,2 });
-		wcout << "(";
-
-		// Light 1 Right
-		SetConsoleCursorPosition(hconsole, { 7,2 });
-		wcout << ")";
-
-		// Light 2 top
-		SetConsoleCursorPosition(hconsole, { 31, 1 });
-		wcout << "\\|/";
-
-		// Light 2 Left
-		SetConsoleCursorPosition(hconsole, { 30,2 });
-		wcout << "(";
-
-		// Light 2 Right
-		SetConsoleCursorPosition(hconsole, { 34,2 });
-		wcout << ")";
-
-		SetConsoleTextAttribute(hconsole, DEFAULT_TEXT_COLOR); // Set Console Text Color to Default
-
-		rStatus = false;
-	}
-	else
-	{
-		// Light 1 top
-		SetConsoleCursorPosition(hconsole, { 4, 1 });
-		wcout << "   ";
-
-		// Light 1 Left
-		SetConsoleCursorPosition(hconsole, { 3,2 });
-		wcout << " ";
-
-		// Light 1 Right
-		SetConsoleCursorPosition(hconsole, { 7,2 });
-		wcout << " ";
-
-		// Light 2 top
-		SetConsoleCursorPosition(hconsole, { 31, 1 });
-		wcout << "   ";
-
-		// Light 2 Left
-		SetConsoleCursorPosition(hconsole, { 30,2 });
-		wcout << " ";
-
-		// Light 2 Right
-		SetConsoleCursorPosition(hconsole, { 34,2 });
-		wcout << " ";
-
-		rStatus = true;
-	}
-}
-
-// Cycle through colors for machine name
-void ToggleMachineName(bool& rStatus)
-{
-	if (rStatus)
-	{	
-		SetConsoleCursorPosition(hconsole, { 13,2 });
-
-		SetConsoleTextAttribute(hconsole, 11); // Set Name Light Cyan
-
-		wcout << "HACK MACHINE";
-
-		SetConsoleTextAttribute(hconsole, 10); // Set Name Light Green
-
-		SetConsoleCursorPosition(hconsole, { 10,2 });
-
-		wcout << "**";
-
-		SetConsoleCursorPosition(hconsole, { 26,2 });
-
-		wcout << "**";
-
-		SetConsoleTextAttribute(hconsole, DEFAULT_TEXT_COLOR); // Set Console Text Color to Default
-
-		rStatus = false;
-	}
-	else
-	{
-		SetConsoleCursorPosition(hconsole, { 13,2 });
-
-		SetConsoleTextAttribute(hconsole, 10); // Set Name Light Green
-
-		wcout << "------------";
-
-		SetConsoleTextAttribute(hconsole, 11); // Set Name Light Cyan
-
-		SetConsoleCursorPosition(hconsole, { 10,2 });
-
-		wcout << "**";
-
-		SetConsoleCursorPosition(hconsole, { 26,2 });
-
-		wcout << "**";
-
-		SetConsoleTextAttribute(hconsole, DEFAULT_TEXT_COLOR); // Set Console Text Color to Default
-
-		rStatus = true;
-	}
-
-	
-}
+// Game Print
+// ----------
 
 // Print Machine Banner Message
 void PrintMachineBanner(wstring message, bool isWarning)
@@ -911,47 +808,6 @@ void PrintReel(int reelNumber, int pos)
 	}
 }
 
-// Returns the previous reel value
-int PreviousReelValue(int currentPos)
-{
-	if ((currentPos - 1) >= 0)
-	{
-		return (currentPos - 1);
-	}
-
-	else
-	{
-		return (REEL_LENGTH - 1);
-	}
-}
-
-// Returns the next reel value
-int NextReelValue(int currentPos)
-{
-	if ((currentPos + 1) < REEL_LENGTH)
-	{
-		return (currentPos + 1);
-	}
-
-	else
-	{
-		return 0;
-	}
-}
-
-// Print Debug Info Message
-void PrintDebugInfoMessage(wstring messageLine1, wstring messageLine2, wstring messageLine3)
-{
-	SetConsoleCursorPosition(hconsole, { 43, 17 });
-	wcout << "~$ " << messageLine1;
-
-	SetConsoleCursorPosition(hconsole, { 43, 18 });
-	wcout << "~$ " << messageLine2;
-
-	SetConsoleCursorPosition(hconsole, { 43, 19 });
-	wcout << "~$ " << messageLine3;
-}
-
 // Print Vun Reel
 void PrintVunReel(int reel, int pos, int& rReelPosStore)
 {
@@ -961,7 +817,7 @@ void PrintVunReel(int reel, int pos, int& rReelPosStore)
 		SetConsoleCursorPosition(hconsole, { 45 , 11 });
 		break;
 
-	case 2: 
+	case 2:
 		SetConsoleCursorPosition(hconsole, { 56 , 11 });
 		break;
 
@@ -979,6 +835,52 @@ void PrintVunReel(int reel, int pos, int& rReelPosStore)
 
 	// Store
 	rReelPosStore = pos;
+}
+
+// Print Debug Info Message
+void PrintDebugInfoMessage(wstring messageLine1, wstring messageLine2, wstring messageLine3)
+{
+	SetConsoleCursorPosition(hconsole, { 43, 17 });
+	wcout << "~$ " << messageLine1;
+
+	SetConsoleCursorPosition(hconsole, { 43, 18 });
+	wcout << "~$ " << messageLine2;
+
+	SetConsoleCursorPosition(hconsole, { 43, 19 });
+	wcout << "~$ " << messageLine3;
+}
+
+// Clear Debug Info Message
+void ClearDebugInfoMessage()
+{
+	PrintDebugInfoMessage(L"                           ", L"                           ", L"                           ");
+}
+
+// Print Data
+void PrintData(int dataScore)
+{
+	SetConsoleCursorPosition(hconsole, { 18,22 });
+	wcout << dataScore << "         ";
+
+	SetConsoleCursorPosition(hconsole, { 18,22 });
+	wcout << dataScore << " GB";
+}
+
+// Print Visibility
+void PrintVisibility(int visibilityScore)
+{
+	SetConsoleCursorPosition(hconsole, { 24,21 });
+	wcout << L"          ";
+
+	SetConsoleCursorPosition(hconsole, { 24,21 });
+	SetConsoleTextAttribute(hconsole, 12); // Set bar Red
+
+	for (int i = 0; i < visibilityScore; i++)
+	{
+		wcout << L"■";
+	}
+
+	SetConsoleTextAttribute(hconsole, DEFAULT_TEXT_COLOR); // Set Console Text Color to Default
 }
 
 // Print Level Info
@@ -1017,60 +919,137 @@ void PrintLevelInfo(int levelValue)
 		wcout << L"                                ";
 
 		SetConsoleCursorPosition(hconsole, { 42 , 3 });
-		wcout << levelDescriptions[(levelValue -1)];
-	}
-
-	else 
-	{
-		OutputDebugString("DEBUG: Invalid Level Selected");
-	}	
-}
-
-// Select Level
-int SelectLevel(int dataScore) 
-{
-	if (dataScore > 70)
-	{
-		return 6;
-	}
-
-	else if (dataScore > 55)
-	{
-		return 5;
-	}
-
-	else if (dataScore > 40)
-	{
-		return 4;
-	}
-
-	else if (dataScore > 25)
-	{
-		return 3;
-	}
-
-	else if (dataScore > 10)
-	{
-		return 2;
+		wcout << levelDescriptions[(levelValue - 1)];
 	}
 
 	else
 	{
-		return 1;
+		OutputDebugString("DEBUG: Invalid Level Selected");
 	}
 }
 
-// Set difficulty
-void SetDifficulty(int& rDifficulty, int level)
+// Game Animation
+// --------------
+
+// Toggle Slot Machine Lights
+void ToggleSlotMachineLights(bool& rStatus)
 {
-	rDifficulty = 50 * level;
+
+	if (rStatus)
+	{
+		SetConsoleTextAttribute(hconsole, 12); // Set Lights Red
+
+		// Light 1 top
+		SetConsoleCursorPosition(hconsole, { 4, 1 });
+		wcout << "\\|/";
+
+		// Light 1 Left
+		SetConsoleCursorPosition(hconsole, { 3,2 });
+		wcout << "(";
+
+		// Light 1 Right
+		SetConsoleCursorPosition(hconsole, { 7,2 });
+		wcout << ")";
+
+		// Light 2 top
+		SetConsoleCursorPosition(hconsole, { 31, 1 });
+		wcout << "\\|/";
+
+		// Light 2 Left
+		SetConsoleCursorPosition(hconsole, { 30,2 });
+		wcout << "(";
+
+		// Light 2 Right
+		SetConsoleCursorPosition(hconsole, { 34,2 });
+		wcout << ")";
+
+		SetConsoleTextAttribute(hconsole, DEFAULT_TEXT_COLOR); // Set Console Text Color to Default
+
+		rStatus = false;
+	}
+	else
+	{
+		// Light 1 top
+		SetConsoleCursorPosition(hconsole, { 4, 1 });
+		wcout << "   ";
+
+		// Light 1 Left
+		SetConsoleCursorPosition(hconsole, { 3,2 });
+		wcout << " ";
+
+		// Light 1 Right
+		SetConsoleCursorPosition(hconsole, { 7,2 });
+		wcout << " ";
+
+		// Light 2 top
+		SetConsoleCursorPosition(hconsole, { 31, 1 });
+		wcout << "   ";
+
+		// Light 2 Left
+		SetConsoleCursorPosition(hconsole, { 30,2 });
+		wcout << " ";
+
+		// Light 2 Right
+		SetConsoleCursorPosition(hconsole, { 34,2 });
+		wcout << " ";
+
+		rStatus = true;
+	}
 }
 
-// Clear Debug Info Message
-void ClearDebugInfoMessage()
+// Cycle through colors for machine name
+void ToggleMachineName(bool& rStatus)
 {
-	PrintDebugInfoMessage(L"                           ", L"                           ", L"                           ");
+	if (rStatus)
+	{
+		SetConsoleCursorPosition(hconsole, { 13,2 });
+
+		SetConsoleTextAttribute(hconsole, 11); // Set Name Light Cyan
+
+		wcout << "HACK MACHINE";
+
+		SetConsoleTextAttribute(hconsole, 10); // Set Name Light Green
+
+		SetConsoleCursorPosition(hconsole, { 10,2 });
+
+		wcout << "**";
+
+		SetConsoleCursorPosition(hconsole, { 26,2 });
+
+		wcout << "**";
+
+		SetConsoleTextAttribute(hconsole, DEFAULT_TEXT_COLOR); // Set Console Text Color to Default
+
+		rStatus = false;
+	}
+	else
+	{
+		SetConsoleCursorPosition(hconsole, { 13,2 });
+
+		SetConsoleTextAttribute(hconsole, 10); // Set Name Light Green
+
+		wcout << "------------";
+
+		SetConsoleTextAttribute(hconsole, 11); // Set Name Light Cyan
+
+		SetConsoleCursorPosition(hconsole, { 10,2 });
+
+		wcout << "**";
+
+		SetConsoleCursorPosition(hconsole, { 26,2 });
+
+		wcout << "**";
+
+		SetConsoleTextAttribute(hconsole, DEFAULT_TEXT_COLOR); // Set Console Text Color to Default
+
+		rStatus = true;
+	}
+
+
 }
+
+// Game Mechanics
+// --------------
 
 // Victory State
 int VictoryState(int reel1, int reel2, int reel3, int vun1, int vun2, int vun3)
@@ -1096,39 +1075,12 @@ int VictoryState(int reel1, int reel2, int reel3, int vun1, int vun2, int vun3)
 	return victoryState;
 }
 
-// Print Data
-void PrintData(int dataScore) 
-{
-	SetConsoleCursorPosition(hconsole, { 18,22 });
-	wcout << dataScore << "         ";
-
-	SetConsoleCursorPosition(hconsole, { 18,22 });
-	wcout << dataScore << " GB";
-}
-
-// Print Visibility
-void PrintVisibility(int visibilityScore)
-{
-	SetConsoleCursorPosition(hconsole, { 24,21 });
-	wcout << L"          ";
-
-	SetConsoleCursorPosition(hconsole, { 24,21 });
-	SetConsoleTextAttribute(hconsole, 12); // Set bar Red
-
-	for (int i = 0; i < visibilityScore; i++)
-	{
-		wcout << L"■";
-	}
-
-	SetConsoleTextAttribute(hconsole, DEFAULT_TEXT_COLOR); // Set Console Text Color to Default
-}
-
 // Increase Visibility
-void IncreaseVisibility(int& rVis) 
+void IncreaseVisibility(int& rVis)
 {
-	if (rVis <= 10) 
+	if (rVis <= 10)
 	{
-		rVis ++;
+		rVis++;
 	}
 }
 
@@ -1190,11 +1142,79 @@ void ResetSpinSpeed(int& rSpinSpeed)
 }
 
 // RandomReelPos
-int RandomReelPosition(int reelLength) 
+int RandomReelPosition(int reelLength)
 {
 	int randomPos = 0;
 
 	randomPos = rand() % reelLength;
 
 	return randomPos;
+}
+
+// Select Level
+int SelectLevel(int dataScore)
+{
+	if (dataScore > 70)
+	{
+		return 6;
+	}
+
+	else if (dataScore > 55)
+	{
+		return 5;
+	}
+
+	else if (dataScore > 40)
+	{
+		return 4;
+	}
+
+	else if (dataScore > 25)
+	{
+		return 3;
+	}
+
+	else if (dataScore > 10)
+	{
+		return 2;
+	}
+
+	else
+	{
+		return 1;
+	}
+}
+
+// Set difficulty
+void SetDifficulty(int& rDifficulty, int level)
+{
+	rDifficulty = 50 * level;
+}
+
+// Returns the previous reel value
+int PreviousReelValue(int currentPos)
+{
+	if ((currentPos - 1) >= 0)
+	{
+		return (currentPos - 1);
+	}
+
+	else
+	{
+		return (REEL_LENGTH - 1);
+	}
+}
+
+// Returns the next reel value
+int NextReelValue(int currentPos)
+{
+	if ((currentPos + 1) < REEL_LENGTH)
+	{
+		return (currentPos + 1);
+	}
+
+	else
+	{
+		return 0;
+	}
 }

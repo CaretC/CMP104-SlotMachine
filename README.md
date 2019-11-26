@@ -411,6 +411,9 @@ void QuitScreen(int score)
 	wcout << L"                   |   ________   |" << endl;
 	wcout << L"                   |   [ [ ]  ]   |" << endl;
 	wcout << L"                   \\___[_[_]__]___|" << endl;
+
+	// Pause window from closing so final screen remains displayed
+	system("pause"); 
 }
 ```
 ### DrawSlotMachine()
