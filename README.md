@@ -1,6 +1,9 @@
 CMP 104 - Fruit Machine Assignment
 ==================================
 
+> | Disclaimer: | This is the coursework that was sumitted for an assessment, feel free to be inspired or get in touch with me about the code base. Please do not plaigarise as you'll likely get caught which is not a good look for anyone. |
+> |-------------|--------------------|
+
 Concept
 =======
 
